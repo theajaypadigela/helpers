@@ -1,0 +1,36 @@
+<header>
+  <h2>Helpers</h2>
+</header>
+<section>  <div class="button-row">
+    <div class="left-buttons">
+      <button class="sort-button" >
+        <img src="../assets/arrow.png" alt="sort icon" />
+      </button>
+      <button>
+        <img src="../assets/filter.png" alt="filter icon" />
+      </button>
+      <button>
+        <img src="../assets/calendar.png" alt="">
+      </button>
+      <div class="search-container">
+        <img src="../assets/magnifying-glass.png" alt="search icon" class="search-icon">
+        <input type="text" placeholder="Name, Employee ID, Phone" class="search-input" />
+      </div>
+    </div>    <div class="right-buttons">
+      <button>
+        <img src="../assets/download.png" alt="download icon" />
+      </button>
+      <button (click)="navigateToAddHelper()">
+        + Add Helper
+      </button>
+    </div>
+  </div>
+</section>
+<div class="main">
+  <div class="left-card">
+    <app-left-bar></app-left-bar>
+  </div>
+  <div class="right-card">
+    <router-outlet></router-outlet>
+  </div>
+</div>

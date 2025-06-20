@@ -1,0 +1,15 @@
+<section>  <div class="left-card">
+    @for(helper of helpers; track helper.id) {
+      <div class="box" (click)="onHelperClick(helper.id)">
+        <div class="helper-image">
+          <img [src]="getAvatarUrl(helper)" [alt]="helper.name" />
+        </div>
+        <div class="helper-info">
+          <h3 class="helper-name">{{ helper.name }}</h3>
+          <p class="helper-occupation">{{ helper.occupation }}</p>
+          <p class="helper-households">({{ helper.households }}) households</p>
+        </div>
+      </div>
+    }
+  </div>
+</section>
