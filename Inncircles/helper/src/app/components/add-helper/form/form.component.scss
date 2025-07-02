@@ -1,0 +1,102 @@
+
+form {
+    padding-bottom: 30px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    div {
+        display: flex;
+        flex-direction: column;
+        gap: 0px;
+    }
+
+    label {
+        font-weight: 500;
+        margin-bottom: 0px;
+    }
+
+    select, input:not(.next-button) {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    select:focus, input:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    }
+
+    .gender-group {
+        flex-direction: column;
+        gap: 5px;
+
+        .radio-options {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            align-items: center;
+
+            div {
+                flex-direction: row;
+                gap: 5px;
+                align-items: center;
+            }
+
+            input[type="radio"] {
+                width: auto;
+                margin: 0;
+            }
+
+            label {
+                margin: 0;
+                font-weight: normal;
+            }
+        }
+    }
+
+    .error-message {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 5px;
+
+        div {
+            margin-bottom: 2px;
+        }
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 30px;
+        align-self: flex-end;
+
+        .next-button {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            font-size: 14px;
+            background-color: #000;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            width: auto;
+            flex-shrink: 0;
+
+            img {
+                width: 10px;
+                height: 10px;
+                display: block;
+            }
+
+            &:hover {
+                background-color: #333;
+            }
+        }
+    }
+}

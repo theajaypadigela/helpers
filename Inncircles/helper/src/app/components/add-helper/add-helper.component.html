@@ -1,58 +1,32 @@
 <header>
-  <button type="button" (click)="goBack()" class="back-button">← Back to Helpers</button>
-  <h2>Add New Helper</h2>
+  <button type="button" (click)="goBack()" class="back-button"><img src="assets/left.png" alt="Privious"></button>
+  <p>Add New Helper</p>
 </header>
-
-<form [formGroup]="helperForm" (ngSubmit)="handleSubmit()">
-    <label for="service">Type of service</label>
-    <select id="service" formControlName="TypeOfService">
-        <option value="Maid">Maid</option>
-        <option value="cook">Cook</option>
-        <option value="driver">Driver</option>
-        <option value="gardener">Gardener</option>
-        <option value="nurse">Nurse</option>
-        <option value="babysitter">Babysitter</option>
-        <option value="painter">Painter</option>
-    </select>
-    <label for="organization">Organization</label>
-    <select id="organization" formControlName="Orgaization">
-        <option value="asbl">ASBL</option>
-        <option value="spring-helpers">Spring Helpers</option>
-    </select>
-    <label for="name">Name</label>
-    <input type="text" id="name" formControlName="Name" placeholder="Enter name" />
-    <label for="languages">Languages</label>
-    <select id="languages" formControlName="Languages">
-        <option value="english">English</option>
-        <option value="telugu">Telugu</option>
-        <option value="hindi">Hindi</option>
-    </select>
-    <label>Gender</label>
-    <div>
-        <input type="radio" id="male" formControlName="Gender" value="male" />
-        <label for="male">Male</label>
+<main class="main">
+    <div class="left">
+        
     </div>
-    <div>
-        <input type="radio" id="female" formControlName="Gender" value="female" />
-        <label for="female">Female</label>
+    <div class="right">
+      <ng-container *ngIf="showForm">
+        <app-form (next) = "next()" [formGroup]="helperForm"></app-form>
+      </ng-container>
+      <ng-container *ngIf="showDocument">
+        <app-document></app-document>
+      </ng-container>
+        <ng-container *ngIf="showReview">
+            <app-review></app-review>
+        </ng-container>
+        <ng-container *ngIf="!showForm">
+        <div class="button-container">
+            <button type="button" class="previous-button" (click)="handlePrevious()">
+              <img  src="assets/left.png" alt="Previous">
+              Previous
+            </button>
+            <button type="button" class="next-button" (click)="handleNext()">
+              Next
+              <img src="assets/next.png" alt="Next">
+            </button>
+        </div>
+      </ng-container>
     </div>
-    <div>
-        <input type="radio" id="other" formControlName="Gender" value="other" />
-        <label for="other">Other</label>
-    </div>
-    <label for="phone">Phone</label>
-    <input type="tel" id="phone" formControlName="Phone" placeholder="Enter phone number" />
-    <label for="email">Email</label>
-    <input type="email" id="email" formControlName="Email" placeholder="Enter email address" />
-    <label for="vehicle">Choose vehicle type</label>
-    <select id="vehicle" formControlName="Vehicle">
-        <option value="car">Car</option>
-        <option value="bike">Bike</option>
-        <option value="scooter">Scooter</option>
-        <option value="none">None</option>
-    </select>
-    <button type="submit" [disabled]="!helperForm.valid">
-        Submit
-    </button>
-    
-</form>
+</main>
