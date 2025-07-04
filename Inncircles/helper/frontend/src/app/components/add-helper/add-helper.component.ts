@@ -25,7 +25,7 @@ export class AddHelperComponent {
     TypeOfService: new FormControl('', [Validators.required]),
     Orgaization: new FormControl('', [Validators.required]),
     Name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]),
-    Languages: new FormControl('', [Validators.required]),
+    Languages: new FormControl([], [Validators.required]),
     Gender: new FormControl('', [Validators.required]),
     Phone: new FormControl('', [Validators.required, Validators.pattern(/^\+?[1-9]\d{1,14}$/)]),
     Email: new FormControl('', [Validators.required, Validators.email]),
