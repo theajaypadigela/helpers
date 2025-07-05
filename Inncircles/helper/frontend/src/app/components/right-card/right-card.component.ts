@@ -1,9 +1,9 @@
 import { Component, signal, computed, effect } from '@angular/core';
 import { AvatarService } from '../../services/avatar.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GetHelperDetailsService } from '../../services/get-helper-details.service';
 import { CommonModule } from '@angular/common';
-import { sign } from 'crypto';
+import { DeleteHelperService } from '../../services/delete-helper.service';
 
 interface Helper {
   id: number;
@@ -35,7 +35,9 @@ export class RightCardComponent {
   constructor(
     private avatarService: AvatarService,
     private route: ActivatedRoute,
-    private helperDetailsService: GetHelperDetailsService
+    private router: Router,
+    private helperDetailsService: GetHelperDetailsService,
+    private deleteHelperService: DeleteHelperService
   ) {
     effect(() => {
       console.log('Helper details updated:', this.helper());
@@ -45,8 +47,29 @@ export class RightCardComponent {
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       this.id.set(params.get('id'));
-      this.helper.set(this.helperDetailsService.helpers.find(helper => helper.id == Number(this.id())) ?? null);
+      this.helper.set(this.helperDetailsService.helpers().find(helper => helper.id == Number(this.id())) ?? null);
     });
+  }
+
+  handleDelete(): void {
+    if (this.helper()) {
+      const helperId = Number(this.id());
+      
+      this.deleteHelperService.deleteHelper(helperId);
+      
+      this.helperDetailsService.helpers.update(helpers => {
+        return helpers.filter(helper => helper.id !== helperId);
+      });
+      
+      this.helper.set(null);
+      this.id.set(null);
+      
+      console.log("Helper deleted and list updated:", this.helperDetailsService.helpers().length);
+      
+      this.router.navigate(['/main']);
+    } else {
+      console.error('No helper found to delete.');
+    }
   }
 
 }

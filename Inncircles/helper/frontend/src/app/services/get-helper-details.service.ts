@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { effect } from '@angular/core';
 
 interface Helper {
   _id: string;
@@ -20,17 +21,18 @@ interface Helper {
 export class GetHelperDetailsService {
 
   apiUrl: string = 'http://localhost:3000/api/helpers';
-  constructor(private http: HttpClient) { }
 
-  helpers: Helper[] = [];
+  helpers = signal<Helper[]>([]);
 
   loadHelperDetails() {
     this.http.get<Helper[]>(`${this.apiUrl}`).subscribe(
       (data: Helper[]) => {
-        this.helpers = data;
+        this.helpers.set(data);
       }
     );
   }
+   
+  constructor(private http: HttpClient) { }
 
   getHelperDetails() {
     return this.http.get(`${this.apiUrl}`);

@@ -1,9 +1,26 @@
-import { Component } from '@angular/core';
+import { Component, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AvatarService } from '../../services/avatar.service';
 import { Router } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { GetHelperDetailsService } from '../../services/get-helper-details.service';
+import { signal } from '@angular/core';
+import { effect } from '@angular/core';
+
+interface Helper {
+  _id?: string;
+  id: number;
+  occupation: string;
+  organisationName: string;
+  fullname: string;
+  languages: string[];
+  gender: string;
+  phone: string;
+  email: string;
+  vehicleType: string;
+  joinedOn?: string;
+  households?: number;
+}
 
 @Component({
   selector: 'app-left-bar',
@@ -13,25 +30,30 @@ import { GetHelperDetailsService } from '../../services/get-helper-details.servi
   styleUrls: ['./left-bar.component.scss']
 })
 export class LeftBarComponent {
-    constructor(private avatarService: AvatarService, private router: Router, private http: HttpClient, private helpersDetails: GetHelperDetailsService) {}
-
-  helpers: any[] = [];
-  ngOnInit() {
-    this.helpersDetails.getHelperDetails().subscribe(data => {
-      this.helpers = data as any[];
+    constructor(private avatarService: AvatarService, private router: Router, private http: HttpClient, private helpersDetails: GetHelperDetailsService) {
+   
+    effect(() => {
+      const currentHelpers = this.helpersDetails.helpers();
+      console.log('Helpers updated in left-bar:', currentHelpers.length);
     });
   }
-  getAvatarUrl(helper: any): string {
 
+  
+  helpers = computed(() => this.helpersDetails.helpers());
+
+  ngOnInit() {
+    this.helpersDetails.loadHelperDetails();
+  }
+
+  getAvatarUrl(helper: any): string {
     if (!helper.image || helper.image === 'null' || helper.image.trim() === '') {
       return this.avatarService.generateAvatarUrl(helper.fullname || 'Unknown');
     }
     
     return helper.image;
   }
-  onHelperClick(id: string | number) {
 
+  onHelperClick(id: string | number) {
     this.router.navigate(['/main/helpers', id]);
-    // console.log('Helper clicked:', id);
   }
 }

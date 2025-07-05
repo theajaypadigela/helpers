@@ -1,0 +1,115 @@
+.card-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.rightCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fdfdfd;
+  padding: 10px;
+
+  .left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    .placeholderImage {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #e0e0e0;
+    }
+    .info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+      }
+      .occupation {
+        margin: 0;
+        font-size: 0.95rem;
+        color: #888;
+      }
+    }
+  }
+
+  .right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    .icon-btn {
+      background: none;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 4px;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+
+      &:hover {
+        border-color: #bbb;
+      }
+
+      img {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+}
+
+.details {
+  padding: 20px;
+  margin-top: 12px;
+
+  .detail-section {
+    margin-bottom: 24px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .heading-with-line {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+
+      h3 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+        white-space: nowrap;
+      }
+
+      .inline-divider {
+        flex: 1;
+        border: none;
+        height: 1px;
+        background-color: #e0e0e0;
+        margin: 0;
+      }
+    }    .id,
+    .detail-item {
+      display: flex;
+      margin: 8px 0;
+      font-size: 0.9rem;
+      color: #666;
+      line-height: 1.6;
+      
+      b {
+        min-width: 120px;
+        font-weight: 600;
+        color: #333;
+        display: inline-block;
+      }
+    }
+  }
+}

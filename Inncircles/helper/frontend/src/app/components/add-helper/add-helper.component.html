@@ -14,7 +14,7 @@
         <app-document></app-document>
       </ng-container>
         <ng-container *ngIf="showReview">
-            <app-review></app-review>
+            <app-review [formData]="helperForm"></app-review>
         </ng-container>
         <ng-container *ngIf="!showForm">
         <div class="button-container">

@@ -1,13 +1,13 @@
 <section>  <div class="left-card">
-    @for(helper of helpers; track helper.id) {
+    @for(helper of helpers(); track helper.id) {
       <div class="box" (click)="onHelperClick(helper.id)">
         <div class="helper-image">
-          <img [src]="getAvatarUrl(helper)" [alt]="helper.name" />
+          <img [src]="getAvatarUrl(helper)" [alt]="helper.fullname" />
         </div>
         <div class="helper-info">
-          <h3 class="helper-name">{{ helper.name }}</h3>
+          <h3 class="helper-name">{{ helper.fullname }}</h3>
           <p class="helper-occupation">{{ helper.occupation }}</p>
-          <p class="helper-households">({{ helper.households }}) households</p>
+          <p class="helper-households">({{ 0 }}) households</p>
         </div>
       </div>
     }
