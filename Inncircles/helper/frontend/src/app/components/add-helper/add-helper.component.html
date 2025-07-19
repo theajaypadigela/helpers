@@ -8,7 +8,7 @@
     </div>
     <div class="right">
       <ng-container *ngIf="showForm">
-        <app-form (next) = "next()" [formGroup]="helperForm"></app-form>
+        <app-form (next) = "next()" [formGroup]="helperForm" [editMode]="editMode"></app-form>
       </ng-container>
       <ng-container *ngIf="showDocument">
         <app-document></app-document>

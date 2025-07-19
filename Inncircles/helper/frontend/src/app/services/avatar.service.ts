@@ -14,4 +14,11 @@ export class AvatarService {
     return `https://ui-avatars.com/api/?name=${formatted}&background=random&color=fff&rounded=true&length=2`;
 }
 
+getAvatarImagePath(imageName: string): string {
+    if (imageName.startsWith('/')) {
+      return `http://localhost:3000${imageName}`;
+    }
+    return `http://localhost:3000/uploads/${imageName}`;
+  }
+
 }

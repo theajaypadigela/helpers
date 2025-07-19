@@ -12,7 +12,8 @@ interface Helper {
   phone: string;
   email: string;
   vehicleType: string;
-  joinedOn?: string;
+  joinedOn?: string | null;
+  image?: File | string | null;
 }
 
 @Injectable({
@@ -23,7 +24,21 @@ export class AddHelperService {
   constructor(private http: HttpClient, private loadHelper: GetHelperDetailsService) { }
 
   addHelper(helper: Helper): void {
-    this.http.post<Helper>('http://localhost:3000/api/helpers', helper).subscribe(
+    console.log('Adding helper:', helper);
+
+    const formData = new FormData();
+
+     Object.entries(helper).forEach(([key, value]) => {
+      if (key === 'image' && value instanceof File) {
+        formData.append('image', value, value.name);
+      } else if (key === 'languages' && Array.isArray(value)) {
+        value.forEach(lang => formData.append('languages', lang));
+      } else if (value !== null && value !== undefined) {
+        formData.append(key, String(value));
+      }
+    });
+
+    this.http.post<Helper>('http://localhost:3000/api/helpers', formData).subscribe(
       (response: Helper) => {
         console.log('Helper added successfully:', response);
         this.loadHelper.loadHelperDetails(); 

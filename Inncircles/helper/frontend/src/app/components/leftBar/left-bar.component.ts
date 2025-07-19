@@ -49,6 +49,9 @@ export class LeftBarComponent {
     if (!helper.image || helper.image === 'null' || helper.image.trim() === '') {
       return this.avatarService.generateAvatarUrl(helper.fullname || 'Unknown');
     }
+    else if (typeof helper.image === 'string') {
+      return this.avatarService.getAvatarImagePath(helper.image);
+    }
     
     return helper.image;
   }

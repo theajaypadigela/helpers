@@ -1,5 +1,8 @@
 <form [formGroup]="formGroup">
   <div>
+    <input type="file" formControlName="image" id="imageInput" (change)="onFileSelected($event)" />
+  </div>
+  <div>
     <label for="service">Type of service</label>
     <select id="service" formControlName="TypeOfService">
       <option value="">Select service type</option>
@@ -97,7 +100,10 @@
     </div>
   </div>
   <div class="button-container">
-    <button type="button" class="next-button" (click)="onNext()">
+    <button (click)="handleUpdate()" type="button" class="update-button" [disabled]="!formGroup.valid" *ngIf="editMode">
+      Save
+    </button>
+    <button type="button" class="next-button" (click)="onNext()" *ngIf="!editMode">
     Next
     <img src="assets/next.png" alt="Next">
     </button>

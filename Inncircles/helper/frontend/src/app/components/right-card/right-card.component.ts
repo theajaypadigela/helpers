@@ -15,7 +15,8 @@ interface Helper {
   phone: string;
   email: string;
   vehicleType: string;
-  joinedOn?: string;
+  joinedOn?: string | null;
+  image?: File | string | null; 
 }
 
 @Component({
@@ -26,10 +27,20 @@ interface Helper {
   styleUrl: './right-card.component.scss'
 })
 export class RightCardComponent {
+
+   private isFile(val: unknown): val is File {
+    return val instanceof File;
+  }
+
   id = signal<string | null>(null);
   helper = signal<Helper | null>(null);
-  imgUrl = computed(() => {
-    return this.avatarService.generateAvatarUrl(this.helper()?.fullname || 'Unknown');
+   imgUrl = computed(() => {
+    const imageVal = this.helper()?.image ?? null;
+    if (typeof imageVal === 'string' && imageVal) {
+      return this.avatarService.getAvatarImagePath(imageVal);
+    } else {
+      return this.avatarService.generateAvatarUrl(this.helper()?.fullname || 'Unknown');
+    }
   });
 
   constructor(
@@ -64,11 +75,17 @@ export class RightCardComponent {
       this.helper.set(null);
       this.id.set(null);
       
-      console.log("Helper deleted and list updated:", this.helperDetailsService.helpers().length);
-      
       this.router.navigate(['/main']);
     } else {
       console.error('No helper found to delete.');
+    }
+  }
+
+  handleEdit(): void {
+    if (this.id()) {
+      this.router.navigate(['/add-helper', this.id()]);
+    } else {
+      console.error('No helper ID found for editing.');
     }
   }
 

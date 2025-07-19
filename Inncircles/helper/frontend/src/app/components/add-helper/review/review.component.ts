@@ -4,7 +4,6 @@ import { FormGroup } from '@angular/forms';
 import { AvatarService } from '../../../services/avatar.service';
 import { AddHelperService } from '../../../services/add-helper.service';
 
-
 interface Helper {
   id: number;
   occupation: string;
@@ -15,10 +14,9 @@ interface Helper {
   phone: string;
   email: string;
   vehicleType: string;
-  joinedOn?: string;
+  joinedOn?: string | null;
+  image?: File | string | null;
 }
-
-
 
 @Component({
   selector: 'app-review',
@@ -36,8 +34,15 @@ export class ReviewComponent implements OnInit {
     constructor(private avatarService: AvatarService, private addHelperService: AddHelperService) {}
 
     ngOnInit() {
-      this.imgUrl = this.avatarService.generateAvatarUrl(this.formData.get('Name')?.value || 'Unknown');
-      
+      const imageVal = this.formData.get('image')?.value;
+      if (imageVal instanceof File) {
+        this.imgUrl = URL.createObjectURL(imageVal);
+      } else if (typeof imageVal === 'string' && imageVal) {
+        this.imgUrl = this.avatarService.getAvatarImagePath(imageVal);
+      } else {
+        this.imgUrl = this.avatarService.generateAvatarUrl(this.formData.get('Name')?.value || 'Unknown');
+      }
+
       this.helper = {
         id: 0, 
         occupation: this.formData.get('TypeOfService')?.value || '',
@@ -48,7 +53,8 @@ export class ReviewComponent implements OnInit {
         phone: this.formData.get('Phone')?.value || '',
         email: this.formData.get('Email')?.value || '',
         vehicleType: this.formData.get('Vehicle')?.value || '',
-        joinedOn: new Date().toLocaleDateString() 
+        joinedOn: new Date().toLocaleDateString() ,
+        image: imageVal || null
       };
     }
 

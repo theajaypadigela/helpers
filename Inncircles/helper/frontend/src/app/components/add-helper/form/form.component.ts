@@ -1,8 +1,9 @@
-
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+import { UpdateHelperService } from '../../../services/update-helper.service';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-form',
@@ -14,11 +15,47 @@ import { ReactiveFormsModule } from '@angular/forms';
 export class FormComponent {
   @Input() formGroup!: FormGroup;
   @Output() next = new EventEmitter<void>();
+  @Input() editMode: boolean = false;
+
+  userId: number = 0;
+
+  constructor(private updateHelperService: UpdateHelperService,  private router: Router, private route: ActivatedRoute) {
+    this.route.params.subscribe(params => {
+      this.userId = Number(params['id']);
+    });
+  }
 
   onNext(): void {
     Object.keys(this.formGroup.controls).forEach(key => {
       this.formGroup.get(key)?.markAsTouched();
     });
     this.next.emit();
+  }
+  handleUpdate(): void {
+    console.log("update called", this.formGroup.value);
+
+    if (this.formGroup.valid) {
+      this.updateHelperService.updateHelper(this.userId, this.formGroup.value)
+        .subscribe({
+          next: (response) => {
+            console.log('Helper updated successfully:', response);
+            this.router.navigate(['/main']);
+          },
+          error: (error) => {
+            console.error('Error updating helper:', error);
+          }
+        });
+    } else {
+      console.log('Form is invalid. Please fill in all required fields.');
+    }
+  }
+
+  onFileSelected(event: Event): void {
+    const fileInput = event.target as HTMLInputElement;
+    if (fileInput.files && fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      console.log('Selected file:', file);
+      this.formGroup.get('image')?.setValue(file);
+    }
   }
 }

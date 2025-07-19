@@ -13,6 +13,8 @@ interface Helper {
   phone: string;
   email: string;
   vehicleType: string;
+  joinedOn?: string | null;
+  image?: string | null;
 }
 
 @Injectable({
@@ -36,5 +38,13 @@ export class GetHelperDetailsService {
 
   getHelperDetails() {
     return this.http.get(`${this.apiUrl}`);
+  }
+  sortHelpersById() {
+    const sortedHelpers = [...this.helpers()].sort((a, b) => a.id - b.id);
+    this.helpers.set(sortedHelpers);
+  }
+  sortHelpersByName() {
+    const sortedHelpers = [...this.helpers()].sort((a, b) => a.fullname.localeCompare(b.fullname));
+    this.helpers.set(sortedHelpers);
   }
 }

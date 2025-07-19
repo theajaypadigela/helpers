@@ -19,6 +19,10 @@ export const routes: Routes = [
         component: AddHelperComponent,
     },
     {
+        path: 'add-helper/:id',
+        component: AddHelperComponent,
+    },
+    {
         path: '',
         redirectTo: 'main',
         pathMatch: 'full'

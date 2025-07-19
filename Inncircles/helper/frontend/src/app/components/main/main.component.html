@@ -3,12 +3,36 @@
 </header>
 <section>  <div class="button-row">
     <div class="left-buttons">
-      <button class="sort-button" >
-        <img src="../assets/arrow.png" alt="sort icon" />
-      </button>
-      <button>
+      <div class="sort-wrapper">
+        <button class="sort-button" (click)="toggleSortMenu()">
+          <img src="../assets/arrow.png" alt="sort icon" />
+        </button>
+        <div *ngIf="showSortOptions" class="sort-options">
+          <button (click)="sortById()">Sort by ID</button>
+          <button (click)="sortByName()">Sort by Name</button>
+        </div>
+      </div>
+      <button class="filter-button" (click)="toggleFilterMenu()">
         <img src="../assets/filter.png" alt="filter icon" />
       </button>
+        <div *ngIf="showFilterOptions" class="filter-options">
+          <p>type of Service</p>
+          <div class="filter-checkboxes">
+            <label><input type="checkbox" value="Maid"> Maid</label>
+            <label><input type="checkbox" value="Driver"> Driver</label>
+            <label><input type="checkbox" value="Gardener"> Gardener</label>
+            <label><input type="checkbox" value="Plumber"> Plumber</label>
+            <label><input type="checkbox" value="Cook"> Cook</label>
+            <label><input type="checkbox" value="nurse"> nurse</label>
+            <label><input type="checkbox" value="BabySitter"> BabySitter</label>
+          </div>
+          <p>Organization</p>
+          <div class="filter-checkboxes">
+            <label><input type="checkbox" value="ASBL"> ASBL</label>
+            <label><input type="checkbox" value="SpringHelpers"> SpringHelpers</label>
+          </div>
+        
+        </div>
       <button>
         <img src="../assets/calendar.png" alt="">
       </button>
