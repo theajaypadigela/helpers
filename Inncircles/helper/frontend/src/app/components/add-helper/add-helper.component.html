@@ -7,15 +7,19 @@
         
     </div>
     <div class="right">
+
       <ng-container *ngIf="showForm">
         <app-form (next) = "next()" [formGroup]="helperForm" [editMode]="editMode"></app-form>
       </ng-container>
+
       <ng-container *ngIf="showDocument">
         <app-document></app-document>
       </ng-container>
+
         <ng-container *ngIf="showReview">
             <app-review [formData]="helperForm"></app-review>
         </ng-container>
+        
         <ng-container *ngIf="!showForm">
         <div class="button-container">
             <button type="button" class="previous-button" (click)="handlePrevious()">

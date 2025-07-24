@@ -3,7 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { MainComponent } from './components/main/main.component';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { GetHelperDetailsService} from './services/get-helper-details.service';
-import { get } from 'http';
+
 
 @Component({
   selector: 'app-root',
@@ -13,9 +13,9 @@ import { get } from 'http';
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-constructor(private http: HttpClient, private getHelpers: GetHelperDetailsService) {}
+constructor( private getHelpers: GetHelperDetailsService) {}
   ngOnInit() {
     this.getHelpers.loadHelperDetails();
-    console.log(this.getHelpers.helpers);
+    // console.log(this.getHelpers.helpers);
   }
 }

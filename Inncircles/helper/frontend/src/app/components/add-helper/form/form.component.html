@@ -1,6 +1,6 @@
 <form [formGroup]="formGroup">
   <div>
-    <input type="file" formControlName="image" id="imageInput" (change)="onFileSelected($event)" />
+    <input type="file" formControlName="image" id="imageInput" (change)="onFileSelected($event, 'image')" />
   </div>
   <div>
     <label for="service">Type of service</label>
@@ -88,15 +88,22 @@
   </div>
   <div>
     <label for="vehicle">Choose vehicle type</label>
-    <select id="vehicle" formControlName="Vehicle">
+    <select id="vehicle" formControlName="VehicleType">
       <option value="">Select vehicle type</option>
       <option value="car">Car</option>
       <option value="bike">Bike</option>
       <option value="scooter">Scooter</option>
       <option value="none">None</option>
     </select>
-    <div class="error-message" *ngIf="formGroup.get('Vehicle')?.invalid && formGroup.get('Vehicle')?.touched">
+    <div class="error-message" *ngIf="formGroup.get('VehicleType')?.invalid && formGroup.get('VehicleType')?.touched">
       Vehicle type is required
+    </div>
+  </div>
+  <div>
+    <label for="kyc">KYC Document</label>
+    <input type="file" id="kyc" formControlName="pdf" (change)="onFileSelected($event, 'pdf')" accept=".pdf" />
+    <div class="error-message" *ngIf="formGroup.get('pdf')?.invalid && formGroup.get('pdf')?.touched">
+      KYC document is required
     </div>
   </div>
   <div class="button-container">

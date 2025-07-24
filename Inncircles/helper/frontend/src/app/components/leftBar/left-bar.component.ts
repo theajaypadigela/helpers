@@ -25,16 +25,16 @@ interface Helper {
 @Component({
   selector: 'app-left-bar',
   standalone: true,
-  imports: [CommonModule, HttpClientModule],
+  imports: [CommonModule],
   templateUrl: './left-bar.component.html',
   styleUrls: ['./left-bar.component.scss']
 })
 export class LeftBarComponent {
-    constructor(private avatarService: AvatarService, private router: Router, private http: HttpClient, private helpersDetails: GetHelperDetailsService) {
+    constructor(private avatarService: AvatarService, private router: Router, private helpersDetails: GetHelperDetailsService) {
    
     effect(() => {
       const currentHelpers = this.helpersDetails.helpers();
-      console.log('Helpers updated in left-bar:', currentHelpers.length);
+      // console.log('Helpers updated in left-bar:', currentHelpers.length);
     });
   }
 

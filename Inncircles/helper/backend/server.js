@@ -27,7 +27,6 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage: storage });
 
 const userSchema = new mongoose.Schema({
   id: {
@@ -74,6 +73,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: false,
     default: null
+  },
+  pdf: {
+    type: String,
+    required: false,
+    default: null
   }
 });
 const Helper = mongoose.model('Helper', userSchema, 'helpers');
@@ -88,12 +92,20 @@ function mapData(updatedData){
   mappedData.occupation = updatedData.TypeOfService;
   mappedData.organisationName = updatedData.Orgaization;
   mappedData.fullname = updatedData.Name;
-  mappedData.languages = updatedData.Languages;
+  // Handle languages - convert to array if it's a string
+  if (Array.isArray(updatedData.Languages)) {
+    mappedData.languages = updatedData.Languages;
+  } else if (updatedData.Languages) {
+    mappedData.languages = [updatedData.Languages];
+  } else {
+    mappedData.languages = [];
+  }
   mappedData.gender = updatedData.Gender;
   mappedData.phone = updatedData.Phone;
   mappedData.email = updatedData.Email;
   mappedData.vehicleType = updatedData.VehicleType;
   mappedData.image = updatedData.image || null;
+  mappedData.pdf = updatedData.pdf || null;
 
   return mappedData;
 }
@@ -104,6 +116,24 @@ function mapData(updatedData){
       : null;
 }
 
+const upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    const isImage = file.mimetype.startsWith('image/');
+    const isPdf   = file.mimetype === 'application/pdf';
+    if (isImage || isPdf) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image and PDF files are allowed'));
+    }
+  }
+});
+
+const cpUpload = upload.fields([
+  { name: 'pdf',  maxCount: 1 },
+  { name: 'image', maxCount: 1 },
+]);
+
 app.get('/api/helpers', async (req, res) => {
     try {
         const helpers = await Helper.find();
@@ -113,12 +143,25 @@ app.get('/api/helpers', async (req, res) => {
     }
 });
 
-app.put('/api/helpers/:id', async (req, res) => {
+app.put('/api/helpers/:id', cpUpload, async (req, res) => {
     const { id } = req.params;
-    const updatedData = req.body;
+    let updatedData = req.body;
 
     try {
         console.log('Updating helper with ID:', id, 'Data:', updatedData);
+        
+        if (typeof updatedData.data === 'string') {
+            updatedData = JSON.parse(updatedData.data);
+        }
+        
+        if (req.files) {
+            if (req.files.image && req.files.image[0]) {
+                updatedData.image = `/uploads/${req.files.image[0].filename}`;
+            }
+            if (req.files.pdf && req.files.pdf[0]) {
+                updatedData.pdf = `/uploads/${req.files.pdf[0].filename}`;
+            }
+        }
         
         const mappedData = mapData(updatedData);
         
@@ -138,41 +181,59 @@ app.put('/api/helpers/:id', async (req, res) => {
     }
 });
 
-app.post('/api/helpers', upload.single('image'), async (req, res) => {
-   try {
-        console.log('Received helper data:', req.body);
-        
-        const helperData = { ...req.body };
-        if (helperData._id) {
-            delete helperData._id;
+app.post(
+  '/api/helpers',
+  cpUpload,
+  async (req, res) => {
+    try {
+      console.log('=== POST /api/helpers called ===');
+      console.log('Received helper data:', req.body);
+      console.log('Received files:', req.files);
+
+      let helperData = { ...req.body };
+      delete helperData._id;
+
+      if (req.files) {
+        console.log('Processing file uploads...');
+        if (req.files.image && req.files.image[0]) {
+          helperData.image = `/uploads/${req.files.image[0].filename}`;
+          console.log('Image file processed:', helperData.image);
         }
-        
-        const incomingId = parseInt(helperData.id, 10);
-        if (!incomingId) {
-            helperData.id = await generateUniqueId();
-        } else {
-            helperData.id = incomingId;
+        if (req.files.pdf && req.files.pdf[0]) {
+          helperData.pdf = `/uploads/${req.files.pdf[0].filename}`;
+          console.log('PDF file processed:', helperData.pdf);
         }
-        
-        const helper = new Helper(helperData);
-        if(req.file) {  
-            const imgUrl = getImageUrl(req);
-            if (imgUrl) {
-                helper.image = imgUrl;
-            }
-        }
-        const savedHelper = await helper.save();
-        console.log('Helper saved successfully---:', savedHelper);
-        
-        res.status(201).json({ 
-            message: 'Helper added successfully', 
-            helper: savedHelper 
-        });
+      }
+
+      if (helperData.TypeOfService || helperData.Orgaization || helperData.Name) {
+        console.log('Data needs mapping - using mapData function');
+        helperData = mapData(helperData);
+      } else {
+        console.log('Data is already in database format');
+      }
+
+      console.log('Final helper data before saving:', helperData);
+
+      const incomingId = parseInt(helperData.id, 10);
+      helperData.id = incomingId || (await generateUniqueId());
+
+      console.log('Creating Helper with data:', helperData);
+      const helper = new Helper(helperData);
+      const savedHelper = await helper.save();
+
+      console.log('Helper saved successfully:', savedHelper);
+      res.status(201).json({
+        message: 'Helper added successfully',
+        helper: savedHelper
+      });
     } catch (error) {
-        console.error('Error saving helper:', error);
-        res.status(400).json({ message: error.message });
+      console.error('=== ERROR in POST /api/helpers ===');
+      console.error('Error saving helper:', error);
+      console.error('Error stack:', error.stack);
+      res.status(400).json({ message: error.message });
     }
-});
+  }
+);
 app.delete('/api/helpers/:id',  async (req, res) => {
   const { id } = req.params;
   try {

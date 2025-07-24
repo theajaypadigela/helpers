@@ -45,20 +45,23 @@ export class AddHelperComponent {
     });
     if(this.userId) {
       this.editMode = true;
-      console.log('Edit mode is ON for user ID:', this.userId);
+      // console.log('Edit mode is ON for user ID:', this.userId);
+
       const helper = this.helperDetailsService.helpers().find(h => h.id === Number(this.userId));
-      console.log('Found helper for editing:', helper);
+
+      // console.log('Found helper for editing:', helper);
       
       this.helperForm = new FormGroup({
         TypeOfService: new FormControl(helper?.occupation, [Validators.required]),
         Orgaization: new FormControl(helper?.organisationName, [Validators.required]),
         Name: new FormControl(helper?.fullname, [Validators.required, Validators.minLength(3), Validators.maxLength(50)]),
-        Languages: new FormControl(helper?.languages, [Validators.required]),
+        Languages: new FormControl(helper?.languages?.[0] || '', [Validators.required]),
         Gender: new FormControl(helper?.gender, [Validators.required]),
-        Phone: new FormControl(helper?.phone, [Validators.required, Validators.pattern(/^\+?[1-9]\d{1,14}$/)]),
+        Phone: new FormControl(helper?.phone, [Validators.required, Validators.pattern(/^[0-9]{10}$/)]),
         Email: new FormControl(helper?.email, [Validators.required, Validators.email]),
-        Vehicle: new FormControl(helper?.vehicleType, [Validators.required]),
-        image: new FormControl(helper?.image || null) 
+        VehicleType: new FormControl(helper?.vehicleType, [Validators.required]),
+        image: new FormControl(helper?.image || null),
+        pdf: new FormControl(null)
       });
 
     } else {
@@ -66,12 +69,13 @@ export class AddHelperComponent {
         TypeOfService: new FormControl('', [Validators.required]),
         Orgaization: new FormControl('', [Validators.required]),
         Name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]),
-        Languages: new FormControl([], [Validators.required]),
+        Languages: new FormControl('', [Validators.required]),
         Gender: new FormControl('', [Validators.required]),
-        Phone: new FormControl('', [Validators.required, Validators.pattern(/^\+?[1-9]\d{1,14}$/)]),
+        Phone: new FormControl('', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]),
         Email: new FormControl('', [Validators.required, Validators.email]),
-        Vehicle: new FormControl('', [Validators.required]),
-        image: new FormControl(null)
+        VehicleType: new FormControl('', [Validators.required]),
+        image: new FormControl(null),
+        pdf: new FormControl(null)
       });
     }
   }
@@ -97,8 +101,20 @@ export class AddHelperComponent {
       this.showForm = false;
     } else {
       console.log('Form is invalid - please fill all required fields');
+      console.log('Form errors:', this.getFormValidationErrors());
     }
     }
+  }
+
+  getFormValidationErrors() {
+    const formErrors: any = {};
+    Object.keys(this.helperForm.controls).forEach(key => {
+      const controlErrors = this.helperForm.get(key)?.errors;
+      if (controlErrors) {
+        formErrors[key] = controlErrors;
+      }
+    });
+    return formErrors;
   }
 
   handlePrevious() {

@@ -32,9 +32,24 @@
         <hr class="inline-divider">
       </div>      <p class="detail-item"><b>Type</b> {{helper.occupation}}</p>
       <p class="detail-item"><b>Organization</b> {{helper.organisationName}}</p>
+      <p class="detail-item"><b>Vehicle Type</b> {{helper.vehicleType}}</p>
       <p class="detail-item"><b>Joined On</b> {{helper.joinedOn}}</p>
+    </div>
+
+    <div class="detail-section" *ngIf="pdfFileName">
+      <div class="heading-with-line">
+        <h3>Documents</h3>
+        <hr class="inline-divider">
+      </div>
+      <p class="detail-item"><b>KYC Document</b> {{pdfFileName}}</p>
     </div>
   </div>
 </div>
 
-<button (click)="next()">+ Add Helper</button>
+<button (click)="next()" [disabled]="isLoading" class="add-helper-btn">
+  <span *ngIf="!isLoading">+ Add Helper</span>
+  <span *ngIf="isLoading">
+    <span class="spinner"></span>
+    Uploading...
+  </span>
+</button>

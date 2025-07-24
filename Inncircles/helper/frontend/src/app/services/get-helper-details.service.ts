@@ -1,6 +1,5 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { effect } from '@angular/core';
 
 interface Helper {
   _id: string;

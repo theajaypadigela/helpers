@@ -35,7 +35,7 @@ export class FormComponent {
     console.log("update called", this.formGroup.value);
 
     if (this.formGroup.valid) {
-      this.updateHelperService.updateHelper(this.userId, this.formGroup.value)
+      this.updateHelperService.updateHelper(this.userId, this.formGroup.value, this.formGroup.get('image')?.value, this.formGroup.get('pdf')?.value)
         .subscribe({
           next: (response) => {
             console.log('Helper updated successfully:', response);
@@ -47,15 +47,27 @@ export class FormComponent {
         });
     } else {
       console.log('Form is invalid. Please fill in all required fields.');
+      console.log('Form errors:', this.getFormValidationErrors());
     }
   }
 
-  onFileSelected(event: Event): void {
+  getFormValidationErrors() {
+    const formErrors: any = {};
+    Object.keys(this.formGroup.controls).forEach(key => {
+      const controlErrors = this.formGroup.get(key)?.errors;
+      if (controlErrors) {
+        formErrors[key] = controlErrors;
+      }
+    });
+    return formErrors;
+  }
+
+  onFileSelected(event: Event, type: 'image' | 'pdf'): void {
     const fileInput = event.target as HTMLInputElement;
     if (fileInput.files && fileInput.files.length > 0) {
       const file = fileInput.files[0];
       console.log('Selected file:', file);
-      this.formGroup.get('image')?.setValue(file);
+      this.formGroup.get(type)?.setValue(file);
     }
   }
 }
