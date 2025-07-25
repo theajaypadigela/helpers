@@ -1,4 +1,4 @@
-import { Component, computed } from '@angular/core';
+import { Component, computed, Input, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AvatarService } from '../../services/avatar.service';
 import { Router } from '@angular/router';
@@ -6,21 +6,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { GetHelperDetailsService } from '../../services/get-helper-details.service';
 import { signal } from '@angular/core';
 import { effect } from '@angular/core';
-
-interface Helper {
-  _id?: string;
-  id: number;
-  occupation: string;
-  organisationName: string;
-  fullname: string;
-  languages: string[];
-  gender: string;
-  phone: string;
-  email: string;
-  vehicleType: string;
-  joinedOn?: string;
-  households?: number;
-}
+import { Helper } from '../../types/helper.interface';
 
 @Component({
   selector: 'app-left-bar',
@@ -39,11 +25,9 @@ export class LeftBarComponent {
   }
 
   
-  helpers = computed(() => this.helpersDetails.helpers());
+  // helpers = computed(() => this.helpersDetails.helpers());
 
-  ngOnInit() {
-    this.helpersDetails.loadHelperDetails();
-  }
+  @Input() helpers: Signal<Helper[]> = signal([]);
 
   getAvatarUrl(helper: any): string {
     if (!helper.image || helper.image === 'null' || helper.image.trim() === '') {

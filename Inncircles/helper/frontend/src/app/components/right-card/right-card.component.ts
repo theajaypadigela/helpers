@@ -4,20 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { GetHelperDetailsService } from '../../services/get-helper-details.service';
 import { CommonModule } from '@angular/common';
 import { DeleteHelperService } from '../../services/delete-helper.service';
-
-interface Helper {
-  id: number;
-  occupation: string;
-  organisationName: string;
-  fullname: string;
-  languages: string[];
-  gender: string;
-  phone: string;
-  email: string;
-  vehicleType: string;
-  joinedOn?: string | null;
-  image?: File | string | null; 
-}
+import { Helper } from '../../types/helper.interface';
 
 @Component({
   selector: 'app-right-card',

@@ -1,20 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-
-interface Helper {
-  _id: string;
-  id: number;
-  occupation: string;
-  organisationName: string;
-  fullname: string;
-  languages: string[];
-  gender: string;
-  phone: string;
-  email: string;
-  vehicleType: string;
-  joinedOn?: string | null;
-  image?: string | null;
-}
+import { Helper } from '../types/helper.interface';
 
 @Injectable({
   providedIn: 'root'

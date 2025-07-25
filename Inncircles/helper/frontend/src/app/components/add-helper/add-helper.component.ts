@@ -6,20 +6,7 @@ import { CommonModule } from '@angular/common';
 import { DocumentComponent } from './document/document.component';
 import { ReviewComponent } from './review/review.component';
 import { GetHelperDetailsService } from '../../services/get-helper-details.service';
-
-interface Helper {
-  id: number;
-  occupation: string;
-  organisationName: string;
-  fullname: string;
-  languages: string[];
-  gender: string;
-  phone: string;
-  email: string;
-  vehicleType: string;
-  joinedOn: string | null;
-  image: string | null;
-}
+import { Helper } from '../../types/helper.interface';
 
 @Component({
   selector: 'app-add-helper',
@@ -61,7 +48,8 @@ export class AddHelperComponent {
         Email: new FormControl(helper?.email, [Validators.required, Validators.email]),
         VehicleType: new FormControl(helper?.vehicleType, [Validators.required]),
         image: new FormControl(helper?.image || null),
-        pdf: new FormControl(null)
+        pdf: new FormControl(null),
+        additionalDocument: new FormControl(null)
       });
 
     } else {
@@ -75,7 +63,8 @@ export class AddHelperComponent {
         Email: new FormControl('', [Validators.required, Validators.email]),
         VehicleType: new FormControl('', [Validators.required]),
         image: new FormControl(null),
-        pdf: new FormControl(null)
+        pdf: new FormControl(null),
+        additionalDocument: new FormControl(null)
       });
     }
   }

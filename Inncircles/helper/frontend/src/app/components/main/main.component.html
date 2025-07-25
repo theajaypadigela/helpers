@@ -12,34 +12,68 @@
           <button (click)="sortByName()">Sort by Name</button>
         </div>
       </div>
-      <button class="filter-button" (click)="toggleFilterMenu()">
-        <img src="../assets/filter.png" alt="filter icon" />
-      </button>
-        <div *ngIf="showFilterOptions" class="filter-options">
-          <p>type of Service</p>
-          <div class="filter-checkboxes">
-            <label><input type="checkbox" value="Maid"> Maid</label>
-            <label><input type="checkbox" value="Driver"> Driver</label>
-            <label><input type="checkbox" value="Gardener"> Gardener</label>
-            <label><input type="checkbox" value="Plumber"> Plumber</label>
-            <label><input type="checkbox" value="Cook"> Cook</label>
-            <label><input type="checkbox" value="nurse"> nurse</label>
-            <label><input type="checkbox" value="BabySitter"> BabySitter</label>
+      <div class="filter-wrapper">
+        <button class="filter-button" (click)="toggleFilterMenu()">
+          <img src="../assets/filter.png" alt="filter icon" />
+        </button>
+        <div *ngIf="showFilterOptions" class="filter-options" [formGroup]="filterForm">
+          <!-- Filter options dropdown -->
+          <mat-form-field appearance="outline">
+            <mat-label>Type of Service</mat-label>
+            <mat-select formControlName="TypeOfService" multiple>
+              <ng-container *ngIf="!allServicesSelected">
+                <mat-option>
+                  <em (click)="selectAllServices()">Select All</em>
+                </mat-option>
+              </ng-container>
+              <ng-container *ngIf="allServicesSelected">
+                <mat-option>
+                  <em (click)="deselectAllServices()">Deselect All</em>
+                </mat-option>
+              </ng-container>
+              <mat-option value="Maid">Maid</mat-option>
+              <mat-option value="driver">Driver</mat-option>
+              <mat-option value="gardener">Gardener</mat-option>
+              <mat-option value="cook">Cook</mat-option>
+              <mat-option value="nurse">Nurse</mat-option>
+              <mat-option value="babysitter">Babysitter</mat-option>
+              <mat-option value="painter">Painter</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Organizations</mat-label>
+            <mat-select formControlName="Organizations" multiple>
+
+              <ng-container *ngIf="!allOrganizationsSelected">
+                <mat-option>
+                  <em (click)="selectAllOrganizations()">Select All</em>
+                </mat-option>
+              </ng-container>
+              <ng-container *ngIf="allOrganizationsSelected">
+                <mat-option>
+                  <em (click)="deselectAllOrganizations()">Deselect All</em>
+                </mat-option>
+              </ng-container>
+
+              <mat-option value="asbl">ASBL</mat-option>
+              <mat-option value="spring-helpers">SpringHelpers</mat-option>
+            </mat-select>
+          </mat-form-field>
+          
+          <div class="filter-actions">
+            <button type="button" class="apply-btn" (click)="applyFilters()">Apply</button>
+            <button type="button" class="reset-btn" (click)="resetFilters()">Reset</button>
           </div>
-          <p>Organization</p>
-          <div class="filter-checkboxes">
-            <label><input type="checkbox" value="ASBL"> ASBL</label>
-            <label><input type="checkbox" value="SpringHelpers"> SpringHelpers</label>
-          </div>
-        
         </div>
+      </div>
       <button>
         <img src="../assets/calendar.png" alt="">
       </button>
       <div class="search-container">
         <img src="../assets/magnifying-glass.png" alt="search icon" class="search-icon">
-        <input type="text" placeholder="Name, Employee ID, Phone" class="search-input" />
+        <input type="text" placeholder="Name, Employee ID, Occupation" class="search-input" [(ngModel)]="searchTerm" (input)="onSearch()" />
       </div>
+      <span class="search-count" >{{ count() }} / {{ totalHelpersCount }}</span>
     </div>    <div class="right-buttons">
       <button>
         <img src="../assets/download.png" alt="download icon" />
@@ -52,9 +86,9 @@
 </section>
 <div class="main">
   <div class="left-card">
-    <app-left-bar></app-left-bar>
+    <app-left-bar [helpers]="helpers"></app-left-bar>
   </div>
   <div class="right-card">
-    <router-outlet></router-outlet>
+    <router-outlet ></router-outlet>
 </div>
 </div>

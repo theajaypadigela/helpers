@@ -3,21 +3,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { GetHelperDetailsService } from './get-helper-details.service';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-
-interface Helper {
-  id: number;
-  occupation: string;
-  organisationName: string;
-  fullname: string;
-  languages: string[];
-  gender: string;
-  phone: string;
-  email: string;
-  vehicleType: string;
-  joinedOn?: string | null;
-  image?: File | string | null;
-  pdf?: File | string | null;
-}
+import { Helper } from '../types/helper.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -41,6 +27,8 @@ export class AddHelperService {
         value.forEach(lang => formData.append('languages', lang));
       } else if (value !== null && value !== undefined && !(value instanceof File)) {
         formData.append(key, String(value));
+      } else if( key === 'additionalDocument' && value instanceof File) {
+        formData.append('additionalDocument', value, value.name);
       }
     });
 

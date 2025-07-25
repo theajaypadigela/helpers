@@ -4,21 +4,7 @@ import { FormGroup } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AvatarService } from '../../../services/avatar.service';
 import { AddHelperService } from '../../../services/add-helper.service';
-
-interface Helper {
-  id: number;
-  occupation: string;
-  organisationName: string;
-  fullname: string;
-  languages: string[];
-  gender: string;
-  phone: string;
-  email: string;
-  vehicleType: string;
-  joinedOn?: string | null;
-  image?: File | string | null;
-  pdf?: File | string | null;
-}
+import { Helper } from '../../../types/helper.interface';
 
 @Component({
   selector: 'app-review',
@@ -52,7 +38,9 @@ export class ReviewComponent implements OnInit {
       if (pdfVal instanceof File) {
         this.pdfFileName = pdfVal.name;
       }
-
+      // Handle Additional Document if provided
+      const additionalVal = this.formData.get('additionalDocument')?.value;
+      
       this.helper = {
         id: 0, 
         occupation: this.formData.get('TypeOfService')?.value || '',
@@ -65,12 +53,14 @@ export class ReviewComponent implements OnInit {
         vehicleType: this.formData.get('VehicleType')?.value || '',
         joinedOn: new Date().toLocaleDateString(),
         image: imageVal || null,
-        pdf: pdfVal || null
+        pdf: pdfVal || null,
+        additionalDocument: additionalVal || null
       };
     }
 
    next(){
       this.isLoading = true;
+      console.log('Submitting helper data:', this.helper);
       this.addHelperService.addHelper(this.helper).subscribe({
         next: (response: any) => {
           console.log('Helper added successfully:', response);
@@ -84,28 +74,3 @@ export class ReviewComponent implements OnInit {
       });
    }
 }
-
-  // Email
-  // : 
-  // "22311a12p3@suh.edu.in"
-  // Gender
-  // : 
-  // "male"
-  // Languages
-  // : 
-  // "english"
-  // Name
-  // : 
-  // "AJAY PADIGELA"
-  // Orgaization
-  // : 
-  // "spring-helpers"
-  // Phone
-  // : 
-  // "8985803272"
-  // TypeOfService
-  // : 
-  // "driver"
-  // Vehicle
-  // : 
-  // "scooter"

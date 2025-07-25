@@ -1,1 +1,5 @@
-<p>document works!</p>
+<form [formGroup]="documentForm" (ngSubmit)="onSubmit()">
+  <label for="pdf">Upload additionalDocument:</label>
+  <input type="file" id="pdf" formControlName="additionalDocument" (change)="onFileChange($event, 'additionalDocument')" />
+  <button type="submit">Submit</button>
+</form>

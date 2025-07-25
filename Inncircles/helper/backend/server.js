@@ -78,6 +78,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: false,
     default: null
+  },
+  additionalDocument: {
+    type: String,
+    required: false,
+    default: null
   }
 });
 const Helper = mongoose.model('Helper', userSchema, 'helpers');
@@ -106,6 +111,7 @@ function mapData(updatedData){
   mappedData.vehicleType = updatedData.VehicleType;
   mappedData.image = updatedData.image || null;
   mappedData.pdf = updatedData.pdf || null;
+  mappedData.additionalDocument = updatedData.additionalDocument || null;
 
   return mappedData;
 }
@@ -119,6 +125,10 @@ function mapData(updatedData){
 const upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
+    if (file.fieldname === 'additionalDocument') {
+      cb(null, true);
+      return;
+    }
     const isImage = file.mimetype.startsWith('image/');
     const isPdf   = file.mimetype === 'application/pdf';
     if (isImage || isPdf) {
@@ -132,6 +142,7 @@ const upload = multer({
 const cpUpload = upload.fields([
   { name: 'pdf',  maxCount: 1 },
   { name: 'image', maxCount: 1 },
+  { name: 'additionalDocument', maxCount: 1 },
 ]);
 
 app.get('/api/helpers', async (req, res) => {
@@ -160,6 +171,9 @@ app.put('/api/helpers/:id', cpUpload, async (req, res) => {
             }
             if (req.files.pdf && req.files.pdf[0]) {
                 updatedData.pdf = `/uploads/${req.files.pdf[0].filename}`;
+            }
+            if (req.files.additionalDocument && req.files.additionalDocument[0]) {
+                updatedData.additionalDocument = `/uploads/${req.files.additionalDocument[0].filename}`;
             }
         }
         
@@ -202,6 +216,10 @@ app.post(
         if (req.files.pdf && req.files.pdf[0]) {
           helperData.pdf = `/uploads/${req.files.pdf[0].filename}`;
           console.log('PDF file processed:', helperData.pdf);
+        }
+        if (req.files.additionalDocument && req.files.additionalDocument[0]) {
+          helperData.additionalDocument = `/uploads/${req.files.additionalDocument[0].filename}`;
+          console.log('Additional document processed:', helperData.additionalDocument);
         }
       }
 
