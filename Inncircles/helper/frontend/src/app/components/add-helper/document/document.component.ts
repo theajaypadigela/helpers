@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
@@ -11,26 +11,26 @@ import { FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
 export class DocumentComponent {
  
   @Input() documentForm!: FormGroup;
+  @Output() nextEvent = new EventEmitter<void>();
 
   constructor() {
     
   }
 
-  onFileChange(event: any, field: string) {
+  
 
-    const fileInput = event.target as HTMLInputElement;
-    if (fileInput.files && fileInput.files.length > 0) {
-      const file = fileInput.files[0];
-      console.log('Selected file:', file);
-      this.documentForm.get(field)?.setValue(file);
-    }
+ onFileChange(event: Event, type: 'pdf' | 'image'): void {
+  const fileInput = event.target as HTMLInputElement;
+  if (fileInput.files && fileInput.files.length > 0) {
+    const file = fileInput.files[0];
+    this.documentForm.get('additionalDocument')?.setValue(file);
+  } else {
+    this.documentForm.get('additionalDocument')?.setValue(null);
   }
+}
 
-  onSubmit() {
-    if (this.documentForm.valid) {
-      
-    } else {
-      console.log('Form is invalid - please fill all required fields');
-    }
+  next() {
+    console.log("Next button clicked in DocumentComponent");
+    this.nextEvent.emit();
   }
 }

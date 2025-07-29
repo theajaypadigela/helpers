@@ -1,4 +1,4 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router } from '@angular/router';
 import { LeftBarComponent } from '../leftBar/left-bar.component';
@@ -21,26 +21,46 @@ export class MainComponent {
   allServicesSelected = false;
   allOrganizationsSelected = false;
   searchTerm: string = '';
+  firstPersonId = signal<number | null>(null);
 
-  constructor(private router: Router, private getHelpers:GetHelperDetailsService) {}
-
+  private allHelpers = signal<Helper[]>([]);
   helpers = signal<Helper[]>([]);
-  private allHelpers: Helper[] = [];
   count = computed(() => this.helpers().length);
-  totalHelpersCount: number = 0;
+  totalHelpersCount = computed(() => this.allHelpers().length);
+  
+  constructor(private router: Router, public getHelpers: GetHelperDetailsService) {
+    this.loadHelpers();
+
+    effect(() => {
+      const updated = this.getHelpers.helpers();
+      this.helpers.set(updated);
+      this.firstPersonId.set(updated.length > 0 ? updated[0].id : null);
+      // this.loadRightHelper(this.firstPersonId());
+      this.allHelpers.set(updated);
+    }, { allowSignalWrites: true });
+  }
+
+  // loadRightHelper(id: number | null = null) {
+  //   console.log('Loading right helper with ID:', id);
+  //   if(id) {
+  //     this.router.navigate(['main/helpers', id]);
+  //   }
+  // }
+
+  loadHelpers() {
+    this.getHelpers.getHelperDetails().subscribe((helpers: Helper[]) => {
+      this.helpers.set(helpers);
+      this.allHelpers.set(helpers);
+      this.firstPersonId.set(helpers.length > 0 ? helpers[0].id : null);
+      console.log('Helpers updated in main component:', this.helpers());
+    });
+    // this.loadRightHelper(this.firstPersonId());
+    
+  }
+
 
   ngOnInit() {
-    this.getHelpers.getHelperDetails().subscribe(
-      (data: any) => {
-        this.allHelpers = data as Helper[];
-        this.helpers.set(this.allHelpers);
-        this.totalHelpersCount = this.allHelpers.length;
-        console.log('Helpers loaded:', this.helpers());
-      },
-      (error) => {
-        console.error('Error fetching helper details:', error);
-      }
-    );
+    this.getHelpers.loadHelperDetails();
   }
 
   navigateToAddHelper() {
@@ -60,13 +80,19 @@ export class MainComponent {
   }
 
   sortById() {
-    this.getHelpers.sortHelpersById();
+    const sortedHelpers = [...this.helpers()].sort((a, b) => a.id - b.id);
+    this.helpers.set(sortedHelpers);
+    this.firstPersonId.set(sortedHelpers.length > 0 ? sortedHelpers[0].id : null);
     this.showSortOptions = false;
+    // this.loadRightHelper(this.firstPersonId());
   }
 
   sortByName() {
-    this.getHelpers.sortHelpersByName();
+    const sortedHelpers = [...this.helpers()].sort((a, b) => a.fullname.localeCompare(b.fullname));
+    this.helpers.set(sortedHelpers);
+    this.firstPersonId.set(sortedHelpers.length > 0 ? sortedHelpers[0].id : null);
     this.showSortOptions = false;
+    // this.loadRightHelper(this.firstPersonId());
   }
 
   toggleFilterMenu() {
@@ -100,7 +126,7 @@ export class MainComponent {
     const filterValues = this.filterForm.value;
     const searchTerm = this.searchTerm.toLowerCase();
 
-    let filteredHelpers = this.allHelpers.filter((helper: Helper) => {
+    let filteredHelpers = this.getHelpers.helpers().filter((helper: Helper) => {
       const serviceMatch = !filterValues.TypeOfService || filterValues.TypeOfService.length === 0 || filterValues.TypeOfService.some(service => service.toLowerCase() === helper.occupation.toLowerCase());
       const orgMatch = !filterValues.Organizations || filterValues.Organizations.length === 0 || filterValues.Organizations.some(org => org.toLowerCase() === helper.organisationName.toLowerCase());
       return serviceMatch && orgMatch;
@@ -115,6 +141,7 @@ export class MainComponent {
     }
 
     this.helpers.set(filteredHelpers);
+    // this.count.set(filteredHelpers.length);
   }
 
   applyFilters() {
@@ -132,7 +159,7 @@ export class MainComponent {
       Organizations: []
     });
     this.searchTerm = '';
-    this.applyFiltersAndSearch();
+    this.getHelpers.loadHelperDetails();
     this.allServicesSelected = false;
     this.allOrganizationsSelected = false;
   }

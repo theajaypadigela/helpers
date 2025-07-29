@@ -22,6 +22,18 @@
         <hr class="inline-divider">
       </div>
       <p class="id"><b>ID</b> {{helper()?.id}}</p>
+      <div class="kyc-link-row">
+        <span class="kyc-label">KYC Document</span>
+        <ng-container *ngIf="helper()?.pdf; else noKyc">
+          <a class="kyc-view-link" [href]="getKycPdfUrl(helper()?.pdf)" target="_blank">
+            <img src="assets/visible.png" alt="View" class="kyc-view-icon" />
+            <span>View</span>
+          </a>
+        </ng-container>
+        <ng-template #noKyc>
+          <span class="kyc-no-doc">No KYC uploaded</span>
+        </ng-template>
+      </div>
     </div>
     
     <div class="detail-section">
@@ -40,7 +52,7 @@
         <hr class="inline-divider">
       </div>      <p class="detail-item"><b>Type</b> {{helper()?.occupation}}</p>
       <p class="detail-item"><b>Organization</b> {{helper()?.organisationName}}</p>
-      <p class="detail-item"><b>Joined On</b> {{helper()?.joinedOn}}</p>
+      <p class="detail-item"><b>Joined On</b> {{helper()?.JoinedOn ? (helper()?.JoinedOn | date:'dd/MM/yyyy') : 'N/A'}}</p>
     </div>
   </div>
 </div>

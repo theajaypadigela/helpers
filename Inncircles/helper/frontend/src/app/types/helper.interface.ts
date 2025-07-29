@@ -9,7 +9,7 @@ export interface Helper {
   phone: string;
   email: string;
   vehicleType: string;
-  joinedOn?: string | null;
+  JoinedOn?: Date | null;
   households?: number;
   image?: File | string | null;
   pdf?: File | string | null;

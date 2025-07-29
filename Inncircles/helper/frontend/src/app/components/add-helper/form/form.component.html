@@ -38,14 +38,27 @@
       <div *ngIf="formGroup.get('Name')?.errors?.['maxlength']">Name cannot exceed 50 characters</div>
     </div>
   </div>
-  <div>
+  <div class="languages-group">
     <label for="languages">Languages</label>
-    <select id="languages" formControlName="Languages">
-      <option value="">Select language</option>
-      <option value="english">English</option>
-      <option value="telugu">Telugu</option>
-      <option value="hindi">Hindi</option>
-    </select>
+    <div class="custom-multi-select">
+      <div class="select-header" (click)="toggleLanguageDropdown()" [class.open]="isLanguageDropdownOpen">
+        <span class="selected-text">{{ getSelectedLanguagesText() }}</span>
+      </div>
+      <div class="dropdown-options" *ngIf="isLanguageDropdownOpen">
+        <label class="option-item">
+          <input type="checkbox" value="english" (change)="onLanguageChange($event)" [checked]="isLanguageSelected('english')">
+          <span>English</span>
+        </label>
+        <label class="option-item">
+          <input type="checkbox" value="telugu" (change)="onLanguageChange($event)" [checked]="isLanguageSelected('telugu')">
+          <span>Telugu</span>
+        </label>
+        <label class="option-item">
+          <input type="checkbox" value="hindi" (change)="onLanguageChange($event)" [checked]="isLanguageSelected('hindi')">
+          <span>Hindi</span>
+        </label>
+      </div>
+    </div>
     <div class="error-message" *ngIf="formGroup.get('Languages')?.invalid && formGroup.get('Languages')?.touched">
       Language is required
     </div>

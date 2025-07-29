@@ -17,7 +17,6 @@
           <img src="../assets/filter.png" alt="filter icon" />
         </button>
         <div *ngIf="showFilterOptions" class="filter-options" [formGroup]="filterForm">
-          <!-- Filter options dropdown -->
           <mat-form-field appearance="outline">
             <mat-label>Type of Service</mat-label>
             <mat-select formControlName="TypeOfService" multiple>
@@ -73,7 +72,7 @@
         <img src="../assets/magnifying-glass.png" alt="search icon" class="search-icon">
         <input type="text" placeholder="Name, Employee ID, Occupation" class="search-input" [(ngModel)]="searchTerm" (input)="onSearch()" />
       </div>
-      <span class="search-count" >{{ count() }} / {{ totalHelpersCount }}</span>
+      <span class="search-count">{{ count() }} / {{ totalHelpersCount() }}</span>
     </div>    <div class="right-buttons">
       <button>
         <img src="../assets/download.png" alt="download icon" />

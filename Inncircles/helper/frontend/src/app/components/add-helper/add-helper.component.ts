@@ -7,15 +7,18 @@ import { DocumentComponent } from './document/document.component';
 import { ReviewComponent } from './review/review.component';
 import { GetHelperDetailsService } from '../../services/get-helper-details.service';
 import { Helper } from '../../types/helper.interface';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-add-helper',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, CommonModule, FormComponent, DocumentComponent, ReviewComponent],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, FormComponent, DocumentComponent, ReviewComponent,MatStepperModule, MatButtonModule],
   templateUrl: './add-helper.component.html',
   styleUrl: './add-helper.component.scss'
 })
 export class AddHelperComponent {
+  stepIndex = 0;
   showForm = true;
   showDocument = false;
   showReview = false;
@@ -42,7 +45,7 @@ export class AddHelperComponent {
         TypeOfService: new FormControl(helper?.occupation, [Validators.required]),
         Orgaization: new FormControl(helper?.organisationName, [Validators.required]),
         Name: new FormControl(helper?.fullname, [Validators.required, Validators.minLength(3), Validators.maxLength(50)]),
-        Languages: new FormControl(helper?.languages?.[0] || '', [Validators.required]),
+        Languages: new FormControl(helper?.languages || [], [Validators.required]),
         Gender: new FormControl(helper?.gender, [Validators.required]),
         Phone: new FormControl(helper?.phone, [Validators.required, Validators.pattern(/^[0-9]{10}$/)]),
         Email: new FormControl(helper?.email, [Validators.required, Validators.email]),
@@ -57,7 +60,7 @@ export class AddHelperComponent {
         TypeOfService: new FormControl('', [Validators.required]),
         Orgaization: new FormControl('', [Validators.required]),
         Name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]),
-        Languages: new FormControl('', [Validators.required]),
+        Languages: new FormControl([], [Validators.required]),
         Gender: new FormControl('', [Validators.required]),
         Phone: new FormControl('', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]),
         Email: new FormControl('', [Validators.required, Validators.email]),
@@ -74,8 +77,12 @@ export class AddHelperComponent {
   handleNext() {
     
     if(this.showDocument) {
+      this.stepIndex = 2;
       this.showReview = true;
       this.showDocument = false; 
+    } else if(this.showReview) {
+      
+      this.router.navigate(['/main']);
     }
   }
 
@@ -86,6 +93,7 @@ export class AddHelperComponent {
     });
 
     if (this.helperForm.valid) {
+      this.stepIndex = 1;
       this.showDocument = true;
       this.showForm = false;
     } else {
@@ -108,9 +116,11 @@ export class AddHelperComponent {
 
   handlePrevious() {
     if (this.showDocument) {
+      this.stepIndex = 0;
       this.showForm = true;
       this.showDocument = false;
     } else if (this.showReview) {
+      this.stepIndex = 1;
       this.showDocument = true;
       this.showReview = false;
     }

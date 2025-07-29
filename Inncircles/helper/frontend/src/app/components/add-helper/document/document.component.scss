@@ -1,0 +1,23 @@
+  .next-button {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            font-size: 14px;
+            background-color: #000;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            width: auto;
+            flex-shrink: 0;
+
+            img {
+                width: 10px;
+                height: 10px;
+                display: block;
+            }
+
+            &:hover {
+                background-color: #333;
+            }
+        }

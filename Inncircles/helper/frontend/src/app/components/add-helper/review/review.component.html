@@ -33,7 +33,7 @@
       </div>      <p class="detail-item"><b>Type</b> {{helper.occupation}}</p>
       <p class="detail-item"><b>Organization</b> {{helper.organisationName}}</p>
       <p class="detail-item"><b>Vehicle Type</b> {{helper.vehicleType}}</p>
-      <p class="detail-item"><b>Joined On</b> {{helper.joinedOn}}</p>
+      <p class="detail-item"><b>Joined On</b> {{helper.JoinedOn}}</p>
     </div>
 
     <div class="detail-section" *ngIf="pdfFileName">
@@ -46,10 +46,15 @@
   </div>
 </div>
 
-<button (click)="next()" [disabled]="isLoading" class="add-helper-btn">
-  <span *ngIf="!isLoading">+ Add Helper</span>
-  <span *ngIf="isLoading">
-    <span class="spinner"></span>
-    Uploading...
-  </span>
-</button>
+<div class="button-container">
+  <button (click)="goToPrevious()" class="previous-btn">
+    ← Previous
+  </button>
+  <button (click)="addHelper()" [disabled]="isLoading" class="add-helper-btn">
+    <span *ngIf="!isLoading">+ Add Helper</span>
+    <span *ngIf="isLoading">
+      <span class="spinner"></span>
+      Uploading...
+    </span>
+  </button>
+</div>

@@ -4,7 +4,19 @@
 </header>
 <main class="main">
     <div class="left">
-        
+      <mat-vertical-stepper [selectedIndex]="stepIndex" linear>
+        <mat-step label="Helper Details">
+          <p>Enter the details of the helper here...</p>
+        </mat-step>
+
+        <mat-step label="Documents">
+          <p>Upload related documents here...</p>
+        </mat-step>
+
+        <mat-step label="Review">
+          <p>Review and confirm your details here...</p>
+        </mat-step>
+      </mat-vertical-stepper>
     </div>
     <div class="right">
 
@@ -13,24 +25,13 @@
       </ng-container>
 
       <ng-container *ngIf="showDocument">
-        <app-document [documentForm]="helperForm"></app-document>
+        <app-document [documentForm]="helperForm" (nextEvent)="handleNext()"></app-document>
       </ng-container>
 
         <ng-container *ngIf="showReview">
-            <app-review [formData]="helperForm"></app-review>
+            <app-review [formData]="helperForm" (previousStep)="handlePrevious()" (nextEvent)="handleNext()"></app-review>
         </ng-container>
         
-        <ng-container *ngIf="!showForm">
-        <div class="button-container">
-            <button type="button" class="previous-button" (click)="handlePrevious()">
-              <img  src="assets/left.png" alt="Previous">
-              Previous
-            </button>
-            <button type="button" class="next-button" (click)="handleNext()">
-              Next
-              <img src="assets/next.png" alt="Next">
-            </button>
-        </div>
-      </ng-container>
+        
     </div>
 </main>

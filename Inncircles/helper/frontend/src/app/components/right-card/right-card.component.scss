@@ -1,3 +1,44 @@
+
+.kyc-link-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 8px 0 8px 0;
+}
+
+.kyc-label {
+  color: #a0a4b8;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.kyc-view-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #6c63ff;
+  font-weight: 500;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.kyc-view-link:hover {
+  color: #4834d4;
+}
+
+.kyc-view-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 2px;
+  vertical-align: middle;
+}
+
+.kyc-no-doc {
+  color: #bbb;
+  font-size: 1rem;
+  margin-left: 8px;
+}
 .card-container {
   display: flex;
   flex-direction: column;

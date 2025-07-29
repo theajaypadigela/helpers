@@ -15,6 +15,20 @@ import { Helper } from '../../types/helper.interface';
 })
 export class RightCardComponent {
 
+  getKycPdfUrl(pdf: string | File | null | undefined): string {
+    if (!pdf) return '';
+    if (pdf instanceof File) {
+      return URL.createObjectURL(pdf);
+    }
+    
+    let fileName = pdf;
+    if (typeof pdf === 'string') {
+      const parts = pdf.split(/[/\\]/);
+      fileName = parts[parts.length - 1];
+    }
+    return this.avatarService.getAvatarImagePath(fileName as string);
+  }
+
    private isFile(val: unknown): val is File {
     return val instanceof File;
   }

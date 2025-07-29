@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { Observable } from 'rxjs';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Helper } from '../types/helper.interface';
 
@@ -11,18 +12,24 @@ export class GetHelperDetailsService {
 
   helpers = signal<Helper[]>([]);
 
+  constructor(private http: HttpClient) { }
+
   loadHelperDetails() {
     this.http.get<Helper[]>(`${this.apiUrl}`).subscribe(
       (data: Helper[]) => {
         this.helpers.set(data);
+      },
+      (error) => {
+        console.error('Error fetching helper details:', error);
       }
     );
   }
-   
-  constructor(private http: HttpClient) { }
 
-  getHelperDetails() {
-    return this.http.get(`${this.apiUrl}`);
+  /**
+   * Fetch helper details from API as an observable of Helper array.
+   */
+  getHelperDetails(): Observable<Helper[]> {
+    return this.http.get<Helper[]>(`${this.apiUrl}`);
   }
   sortHelpersById() {
     const sortedHelpers = [...this.helpers()].sort((a, b) => a.id - b.id);
