@@ -8,11 +8,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatOptionModule } from '@angular/material/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Helper } from '../../types/helper.interface';
+import { RightCardComponent } from '../right-card/right-card.component';
 
 @Component({
   selector: 'app-main',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, LeftBarComponent, MatSelectModule, MatFormFieldModule, MatOptionModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, RouterOutlet, LeftBarComponent, MatSelectModule, MatFormFieldModule, MatOptionModule, ReactiveFormsModule, FormsModule, RightCardComponent],
   templateUrl: './main.component.html',
   styleUrl: './main.component.scss'
 })
@@ -27,6 +28,7 @@ export class MainComponent {
   helpers = signal<Helper[]>([]);
   count = computed(() => this.helpers().length);
   totalHelpersCount = computed(() => this.allHelpers().length);
+  firstHelper = signal<Helper | null>(null);
   
   constructor(private router: Router, public getHelpers: GetHelperDetailsService) {
     this.loadHelpers();
@@ -34,7 +36,10 @@ export class MainComponent {
     effect(() => {
       const updated = this.getHelpers.helpers();
       this.helpers.set(updated);
+      this.firstHelper.set(updated[0]);
       this.firstPersonId.set(updated.length > 0 ? updated[0].id : null);
+      // console.log('First helper updated in main component:', this.firstHelper());
+      // console.log('Helpers updated in main component:', this.helpers());
       // this.loadRightHelper(this.firstPersonId());
       this.allHelpers.set(updated);
     }, { allowSignalWrites: true });
@@ -51,8 +56,9 @@ export class MainComponent {
     this.getHelpers.getHelperDetails().subscribe((helpers: Helper[]) => {
       this.helpers.set(helpers);
       this.allHelpers.set(helpers);
+      this.firstHelper.set(this.getHelpers.getFirstHelper());
       this.firstPersonId.set(helpers.length > 0 ? helpers[0].id : null);
-      console.log('Helpers updated in main component:', this.helpers());
+      // console.log('Helpers updated in main component:', this.helpers());
     });
     // this.loadRightHelper(this.firstPersonId());
     
@@ -82,6 +88,8 @@ export class MainComponent {
   sortById() {
     const sortedHelpers = [...this.helpers()].sort((a, b) => a.id - b.id);
     this.helpers.set(sortedHelpers);
+    // this.getHelpers.helpers.set(sortedHelpers);
+    this.getHelpers.firstHelper.set(sortedHelpers[0]);
     this.firstPersonId.set(sortedHelpers.length > 0 ? sortedHelpers[0].id : null);
     this.showSortOptions = false;
     // this.loadRightHelper(this.firstPersonId());
@@ -90,6 +98,8 @@ export class MainComponent {
   sortByName() {
     const sortedHelpers = [...this.helpers()].sort((a, b) => a.fullname.localeCompare(b.fullname));
     this.helpers.set(sortedHelpers);
+    // this.getHelpers.helpers.set(sortedHelpers);
+    this.getHelpers.firstHelper.set(sortedHelpers[0]);
     this.firstPersonId.set(sortedHelpers.length > 0 ? sortedHelpers[0].id : null);
     this.showSortOptions = false;
     // this.loadRightHelper(this.firstPersonId());
@@ -141,6 +151,7 @@ export class MainComponent {
     }
 
     this.helpers.set(filteredHelpers);
+    this.getHelpers.firstHelper.set(filteredHelpers[0]);
     // this.count.set(filteredHelpers.length);
   }
 

@@ -12,11 +12,11 @@ export class DeleteHelperService {
   deleteHelper(id: number): void {
     this.http.delete(`http://localhost:3000/api/helpers/${id}`).subscribe({
       next: (response) => {
-        console.log('Helper deleted successfully:', response);
+        // console.log('Helper deleted successfully:', response);
         this.updateHelpers.helpers.update(helpers => {
           return helpers.filter(helper => helper.id !== id);
         });
-        console.log('Updated helpers after deletion:', this.updateHelpers.helpers().length);
+        // console.log('Updated helpers after deletion:', this.updateHelpers.helpers().length);
       },
       error: (error) => {
         console.error('Error deleting helper:', error);

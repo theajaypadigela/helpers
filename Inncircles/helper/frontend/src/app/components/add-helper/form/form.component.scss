@@ -274,3 +274,36 @@ form {
   align-items: center !important;
   justify-content: space-between !important;
 }
+
+.imageUpload{
+    display: flex;
+    height: 100px;
+    width: 100px;
+    margin: auto;
+    border-radius: 50%;
+    border: 2px dashed black;
+    justify-content: center;
+    align-items: center;
+    // background-color: #000;
+    svg{
+        height: 80px;
+        width: 80px;
+    }
+    :hover{
+        color: #007bff;
+    }
+}
+
+.imageUpload:hover{
+    border: 2px dashed blue;
+}
+.profileImg {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%; // Makes it circular
+    border: 2px solid #ccc;
+    display: block;
+    margin: 10px auto;
+  }
+

@@ -41,6 +41,6 @@ export class LeftBarComponent {
   }
 
   onHelperClick(id: string | number) {
-    this.router.navigate(['/main/helpers', id]);
+    this.helpersDetails.setFirstHelper(Number(id));
   }
 }

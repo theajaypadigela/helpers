@@ -5,6 +5,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { UpdateHelperService } from '../../../services/update-helper.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { AvatarService } from '../../../services/avatar.service';
 
 @Component({
   selector: 'app-form',
@@ -17,14 +18,25 @@ export class FormComponent {
   @Input() formGroup!: FormGroup;
   @Output() next = new EventEmitter<void>();
   @Input() editMode: boolean = false;
+  imagePreviewUrl: string | ArrayBuffer | null = null;
 
   userId: number = 0;
   isLanguageDropdownOpen: boolean = false;
 
-  constructor(private updateHelperService: UpdateHelperService,  private router: Router, private route: ActivatedRoute, private snackBar: MatSnackBar) {
+  constructor(private updateHelperService: UpdateHelperService,  private router: Router, private route: ActivatedRoute, private snackBar: MatSnackBar, private avatar: AvatarService) {
     this.route.params.subscribe(params => {
       this.userId = Number(params['id']);
     });
+    
+  }
+  ngOnInit(){
+    if (this.editMode) {
+      const imageControl = this.formGroup.get('image');
+      if(imageControl && imageControl.value){
+        this.imagePreviewUrl = this.avatar.getAvatarImagePath(imageControl.value);
+      }
+      // this.imagePreviewUrl = imageControl ? imageControl.value : null;
+    }
   }
 
   onNext(): void {
@@ -39,24 +51,24 @@ export class FormComponent {
     }
   }
   handleUpdate(): void {
-    console.log("update called", this.formGroup.value);
+    // console.log("update called", this.formGroup.value);
 
     if (this.formGroup.valid) {
       this.updateHelperService.updateHelper(this.userId, this.formGroup.value, this.formGroup.get('image')?.value, this.formGroup.get('pdf')?.value)
         .subscribe({
           next: (response) => {
-            console.log('Helper updated successfully:', response);
+            // console.log('Helper updated successfully:', response);
             this.showSuccessMessage();
             this.router.navigate(['/main']);
           },
           error: (error) => {
-            console.error('Error updating helper:', error);
+            // console.error('Error updating helper:', error);
             this.showErrorMessage();
           }
         });
     } else {
-      console.log('Form is invalid. Please fill in all required fields.');
-      console.log('Form errors:', this.getFormValidationErrors());
+      // console.log('Form is invalid. Please fill in all required fields.');
+      // console.log('Form errors:', this.getFormValidationErrors());
       this.showValidationErrorMessage();
     }
   }
@@ -74,10 +86,18 @@ export class FormComponent {
 
   onFileSelected(event: Event, type: 'pdf' | 'image'): void {
     const fileInput = event.target as HTMLInputElement;
+    console.log(fileInput.files?.[0]);
     if (fileInput.files && fileInput.files.length > 0) {
       const file = fileInput.files[0];
       console.log('Selected file:', file);
-      this.formGroup.get(type)?.setValue(file);
+      this.formGroup.patchValue(file);
+
+      if(type === 'image'){
+        const reader = new FileReader();
+        reader.onload = ()=> this.imagePreviewUrl = reader.result;
+        reader.readAsDataURL(file);
+      }
+      // this.formGroup.get(type)?.setValue({type: file});
     }
   }
 

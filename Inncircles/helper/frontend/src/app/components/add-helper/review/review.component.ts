@@ -66,10 +66,10 @@ export class ReviewComponent implements OnInit {
 
    addHelper(){
       this.isLoading = true;
-      console.log('Submitting helper data:', this.helper);
+      // console.log('Submitting helper data:', this.helper);
       this.addHelperService.addHelper(this.helper).subscribe({
         next: (response: any) => {
-          console.log('Helper added successfully:', response);
+          // console.log('Helper added successfully:', response);
           this.isLoading = false;
           this.openSuccessDialog();
         },

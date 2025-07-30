@@ -13,12 +13,12 @@ export class AddHelperService {
   constructor(private http: HttpClient, private loadHelper: GetHelperDetailsService) { }
 
   addHelper(helper: Helper): Observable<any> {
-    console.log('Adding helper:', helper);
+    // console.log('Adding helper:', helper);
 
     const formData = new FormData();
 
      Object.entries(helper).forEach(([key, value]) => {
-      console.log(`Processing field: ${key} = `, value);
+      // console.log(`Processing field: ${key} = `, value);
       if (key === 'image' && value instanceof File) {
         formData.append('image', value, value.name);
       } else if (key === 'pdf' && value instanceof File) {
@@ -32,11 +32,11 @@ export class AddHelperService {
       }
     });
 
-    console.log('FormData prepared and sending to backend...');
+    // console.log('FormData prepared and sending to backend...');
 
     return this.http.post<any>('http://localhost:3000/api/helpers', formData).pipe(
       tap((response: any) => {
-        console.log('Helper added successfully:', response);
+        // console.log('Helper added successfully:', response);
         this.loadHelper.loadHelperDetails(); 
       })
     );

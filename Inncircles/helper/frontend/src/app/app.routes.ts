@@ -7,19 +7,21 @@ export const routes: Routes = [
     {
         path: 'main',
         component: MainComponent,
-        children:[
-            {
-                path: 'helpers/:id',
-                component: RightCardComponent,
-            }
-        ]
+        // children:[
+        //     {
+        //         path: 'helpers/:id',
+        //         component: RightCardComponent,
+        //     }
+        // ]
     },
     {
         path: 'add-helper',
-        component: AddHelperComponent,
+        component: AddHelperComponent
+        // loadComponent: () => import('./components/add-helper/add-helper.component').then((m)=> m.AddHelperComponent)
     },
     {
         path: 'add-helper/:id',
+        // loadComponent: () =>import('./components/add-helper/add-helper.component').then((m)=>m.AddHelperComponent)
         component: AddHelperComponent,
     },
     {
