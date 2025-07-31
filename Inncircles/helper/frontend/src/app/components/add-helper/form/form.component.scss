@@ -301,9 +301,29 @@ form {
     width: 100px;
     height: 100px;
     object-fit: cover;
-    border-radius: 50%; // Makes it circular
+    border-radius: 50%; // Makes it circular  
     border: 2px solid #ccc;
     display: block;
     margin: 10px auto;
   }
+
+.kyc-description-icon {
+  color: #1976d2;
+  font-size: 44px;
+  vertical-align: middle;
+  cursor: pointer;
+  border: 3px dotted #1976d2;
+  padding: 12px 28px;
+  border-radius: 10px;
+  background: #f5faff;
+  transition: box-shadow 0.2s, background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+}
+.kyc-description-icon:hover {
+  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.18);
+  background: #e3f2fd;
+}
 

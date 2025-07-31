@@ -7,6 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { AvatarService } from '../../../services/avatar.service';
 import { AddHelperService } from '../../../services/add-helper.service';
 import { Helper } from '../../../types/helper.interface';
+import { HelperSuccessDialogComponentComponent } from '../../helper-success-dialog-component/helper-success-dialog-component.component';
+
 
 @Component({
   selector: 'app-review',
@@ -18,7 +20,9 @@ import { Helper } from '../../../types/helper.interface';
 export class ReviewComponent implements OnInit {
    @Input() formData!: FormGroup;
    @Output() previousStep = new EventEmitter<void>();
-    @Output() nextEvent = new EventEmitter<void>();
+   @Output() nextEvent = new EventEmitter<void>();
+
+    qrString: string = '';
 
    imgUrl: string = 'https://via.placeholder.com/150';
    helper!: Helper;
@@ -62,6 +66,15 @@ export class ReviewComponent implements OnInit {
         pdf: pdfVal || null,
         additionalDocument: additionalVal || null
       };
+
+      // Generate QR code value with helper information
+      this.qrString = JSON.stringify({
+        name: this.helper.fullname,
+        phone: this.helper.phone,
+        email: this.helper.email,
+        occupation: this.helper.occupation,
+        organization: this.helper.organisationName
+      });
     }
 
    addHelper(){
@@ -81,10 +94,13 @@ export class ReviewComponent implements OnInit {
    }
 
    openSuccessDialog() {
-      const dialogRef = this.dialog.open(HelperSuccessDialogComponent, {
+      const dialogRef = this.dialog.open(HelperSuccessDialogComponentComponent, {
         width: '400px',
         disableClose: true,
-        data: { message: `${this.formData.get('Name')?.value || 'Helper'} added !` }
+        data: { 
+          message: `${this.formData.get('Name')?.value || 'Helper'} added !`,
+          qrCodeValue: this.qrString
+        }
       });
       dialogRef.afterClosed().subscribe(() => {
         this.nextEvent.emit();
@@ -97,27 +113,3 @@ export class ReviewComponent implements OnInit {
 
 }
 
-@Component({
-  selector: 'app-helper-success-dialog',
-  template: `
-    <h1 mat-dialog-title>Success</h1>
-    <div mat-dialog-content>
-      <p>Helper added successfully!</p>
-    </div>
-    <div mat-dialog-actions>
-      <button mat-button (click)="closeDialog()">OK</button>
-    </div>
-  `,
-  standalone: true,
-  imports: [MatDialogModule, MatIconModule],
-})
-export class HelperSuccessDialogComponent {
-  constructor(
-    public dialogRef: MatDialogRef<HelperSuccessDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { message: string }
-  ) {}
-
-  closeDialog() {
-    this.dialogRef.close();
-  }
-}

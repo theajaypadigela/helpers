@@ -5,12 +5,13 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { UpdateHelperService } from '../../../services/update-helper.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
 import { AvatarService } from '../../../services/avatar.service';
 
 @Component({
   selector: 'app-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatSnackBarModule],
+  imports: [CommonModule, ReactiveFormsModule, MatSnackBarModule, MatIconModule],
   templateUrl: './form.component.html',
   styleUrls: ['./form.component.scss']
 })
@@ -19,11 +20,16 @@ export class FormComponent {
   @Output() next = new EventEmitter<void>();
   @Input() editMode: boolean = false;
   imagePreviewUrl: string | ArrayBuffer | null = null;
+  kycPreviewUrl: string | null = null;
 
   userId: number = 0;
   isLanguageDropdownOpen: boolean = false;
 
-  constructor(private updateHelperService: UpdateHelperService,  private router: Router, private route: ActivatedRoute, private snackBar: MatSnackBar, private avatar: AvatarService) {
+  constructor(private updateHelperService: UpdateHelperService,
+      private router: Router, private route: ActivatedRoute,
+       private snackBar: MatSnackBar,
+        private avatar: AvatarService,
+      ) {
     this.route.params.subscribe(params => {
       this.userId = Number(params['id']);
     });
@@ -90,12 +96,17 @@ export class FormComponent {
     if (fileInput.files && fileInput.files.length > 0) {
       const file = fileInput.files[0];
       console.log('Selected file:', file);
-      this.formGroup.patchValue(file);
-
+      
       if(type === 'image'){
+        this.formGroup.patchValue({image: file});
         const reader = new FileReader();
         reader.onload = ()=> this.imagePreviewUrl = reader.result;
         reader.readAsDataURL(file);
+      }
+      if(type == 'pdf') {
+        this.formGroup.patchValue({pdf: file});
+        const blobUrl = URL.createObjectURL(file);
+        this.kycPreviewUrl = blobUrl
       }
       // this.formGroup.get(type)?.setValue({type: file});
     }

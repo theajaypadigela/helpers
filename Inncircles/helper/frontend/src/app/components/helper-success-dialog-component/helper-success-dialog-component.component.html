@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>Success!</h1>
+<div mat-dialog-content class="dialog-content">
+    <p>{{ data.message }}</p>
+    <div class="qr-code-container">
+        <qrcode
+        [qrdata]="data.qrCodeValue"
+        [errorCorrectionLevel]="'M'"
+        [width]="220">
+        </qrcode>
+        <p class="qr-info">Scan this code to view the helper's profile.</p>
+    </div>
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-flat-button color="primary" (click)="closeDialog()">OK</button>
+</div>
