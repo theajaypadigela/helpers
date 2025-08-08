@@ -1,15 +1,47 @@
-<h1 mat-dialog-title>Success!</h1>
-<div mat-dialog-content class="dialog-content">
-    <p>{{ data.message }}</p>
-    <div class="qr-code-container">
-        <qrcode
-        [qrdata]="data.qrCodeValue"
-        [errorCorrectionLevel]="'M'"
-        [width]="220">
-        </qrcode>
-        <p class="qr-info">Scan this code to view the helper's profile.</p>
+<div class="card-container">
+  <div class="rightCard">
+    <div class="left">
+      <img [src]="imgUrl" alt="helper-image" class="placeholderImage">
+      <div class="info">
+        <h2>{{helper.fullname}}</h2>
+        <p class="occupation">{{helper.occupation}}</p>
+      </div>
     </div>
-</div>
-<div mat-dialog-actions align="end">
+    <div class="right">
+      <div class="success-badge">
+        <span>✓ Success</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="details">
+    <div class="detail-section">
+      <div class="heading-with-line">
+        <h3>Personal Details</h3>
+        <hr class="inline-divider">
+      </div>
+      <p class="detail-item"><b>Phone</b> {{helper.phone}}</p>
+      <p class="detail-item"><b>Email</b> {{helper.email}}</p>
+      <p class="detail-item"><b>Organisation</b> {{helper.organisationName}}</p>
+    </div>
+    
+    <div class="detail-section">
+      <div class="heading-with-line">
+        <h3>QR Code</h3>
+        <hr class="inline-divider">
+      </div>
+      <div class="qr-code-container">
+        <qrcode
+          [qrdata]="data.qrCodeValue"
+          [errorCorrectionLevel]="'M'"
+          [width]="200">
+        </qrcode>
+        <p class="qr-info">Scan this code to view the helper's profile</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="dialog-actions">
     <button mat-flat-button color="primary" (click)="closeDialog()">OK</button>
+  </div>
 </div>

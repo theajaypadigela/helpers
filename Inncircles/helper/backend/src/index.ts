@@ -1,8 +1,13 @@
 import express, { Request, Response } from 'express';
 import mongoose, { Model, Schema } from 'mongoose';
+import { S3Client, PutObjectCommand, GetObjectCommand  } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import cors from 'cors';
 import multer from 'multer';
 import path from 'path';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const PORT = 3000;
@@ -108,6 +113,22 @@ const userSchema = new Schema<IHelper>({
 
 const Helper: Model<IHelper> = mongoose.model<IHelper>('Helper', userSchema, 'helpers');
 
+async function getS3SignedUrl(key: string | null | undefined): Promise<string | null> {
+  if (!key) return null;
+  if (key.startsWith('http')) return key;
+  try {
+    const command = new GetObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME!,
+      Key: key,
+    });
+    const signedUrl = await getSignedUrl(s3Client, command);
+    return signedUrl;
+  } catch (error) {
+    console.error(`Error generating signed URL for key ${key}:`, error);
+    return null;
+  }
+}
+
 async function generateUniqueId(): Promise<number> {
   const lastHelper = await Helper.findOne().sort({ id: -1 });
   return lastHelper ? lastHelper.id + 1 : 1;
@@ -115,23 +136,47 @@ async function generateUniqueId(): Promise<number> {
 
 function mapData(updatedData: Record<string, any>): Partial<IHelper> {
   const mappedData: Partial<IHelper> = {};
-  mappedData.occupation = updatedData.TypeOfService;
-  mappedData.organisationName = updatedData.Orgaization;
-  mappedData.fullname = updatedData.Name;
-  if (Array.isArray(updatedData.Languages)) {
-    mappedData.languages = updatedData.Languages;
-  } else if (updatedData.Languages) {
-    mappedData.languages = [updatedData.Languages];
+  mappedData.occupation = updatedData.occupation;
+  mappedData.organisationName = updatedData.organisationName;
+  mappedData.fullname = updatedData.fullname;
+  if (Array.isArray(updatedData.languages)) {
+    // Handle nested arrays like [['telugu', 'english']]
+    if (updatedData.languages.length > 0 && Array.isArray(updatedData.languages[0])) {
+      mappedData.languages = updatedData.languages[0];
+    } else {
+      mappedData.languages = updatedData.languages;
+    }
+  } else if (updatedData.languages) {
+    mappedData.languages = [updatedData.languages];
   } else {
     mappedData.languages = [];
   }
-  mappedData.gender = updatedData.Gender as IHelper['gender'];
-  mappedData.phone = updatedData.Phone;
-  mappedData.email = updatedData.Email;
-  mappedData.vehicleType = updatedData.VehicleType;
-  mappedData.image = updatedData.image || null;
-  mappedData.pdf = updatedData.pdf || null;
-  mappedData.additionalDocument = updatedData.additionalDocument || null;
+  mappedData.gender = updatedData.gender as IHelper['gender'];
+  mappedData.phone = updatedData.phone;
+  mappedData.email = updatedData.email;
+  mappedData.vehicleType = updatedData.vehicleType;
+  
+  // Handle image field - ensure it's a string or null, not an object
+  if (updatedData.image && typeof updatedData.image === 'string') {
+    mappedData.image = updatedData.image;
+  } else {
+    mappedData.image = null;
+  }
+  
+  // Handle pdf field - ensure it's a string or null
+  if (updatedData.pdf && typeof updatedData.pdf === 'string') {
+    mappedData.pdf = updatedData.pdf;
+  } else {
+    mappedData.pdf = null;
+  }
+  
+  // Handle additionalDocument field - ensure it's a string or null
+  if (updatedData.additionalDocument && typeof updatedData.additionalDocument === 'string') {
+    mappedData.additionalDocument = updatedData.additionalDocument;
+  } else {
+    mappedData.additionalDocument = null;
+  }
+  
   mappedData.JoinedOn = updatedData.JoinedOn || new Date();
 
   return mappedData;
@@ -160,22 +205,83 @@ const upload = multer({
   }
 });
 
+
+
 const cpUpload = upload.fields([
   { name: 'pdf', maxCount: 1 },
   { name: 'image', maxCount: 1 },
   { name: 'additionalDocument', maxCount: 1 },
 ]);
 
+const s3Client = new S3Client({
+  region: 'ap-south-1',
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
+  }
+});
+
+async function addImage(image: string): Promise<any> {
+  const command = new PutObjectCommand({
+    Bucket: process.env.AWS_BUCKET_NAME!,
+    Key: `helpers/${Date.now()}.jpg`,
+    Body: image
+  });
+  const signedUrl = await getSignedUrl(s3Client, command);
+  return signedUrl;
+}
+
+app.get('/api/helpers/getUrl', async (req: Request, res: Response) => {
+  try {
+    const key = `helpers/${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+
+    const command = new PutObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: key,
+      ContentType: 'image/jpeg',
+    });
+
+    const signedUrl = await getSignedUrl(s3Client, command); 
+
+    res.status(200).json({ url: signedUrl, key });
+  } catch (error: any) {
+    console.error('Error generating signed URL:', error);
+    res.status(500).json({ message: 'Failed to generate signed URL', error: error.message });
+  }
+});
+
+app.get('/api/helpers/getImageUrl', async (req: Request, res: Response) => {
+  const { key } = req.query;
+  if (!key || typeof key !== 'string') {
+    return res.status(400).json({ message: 'Invalid key parameter' });
+  }
+
+  try {
+    const signedUrl = await getS3SignedUrl(key);
+    if (!signedUrl) {
+      return res.status(404).json({ message: 'Image not found' });
+    }
+    res.status(200).json({ imageUrl: signedUrl });
+  } catch (error: any) {
+    console.error('Error getting image URL:', error);
+    res.status(500).json({ message: 'Failed to get image URL', error: error.message });
+  }
+});
+
 app.get('/api/helpers', async (req: Request, res: Response) => {
   try {
     const helpers = await Helper.find();
-    // Convert file paths to URLs for frontend consumption
-    const helpersWithUrls = helpers.map(helper => ({
-      ...helper.toObject(),
-      image: getFileUrl(helper.image),
-      pdf: getFileUrl(helper.pdf),
-      additionalDocument: getFileUrl(helper.additionalDocument)
-    }));
+    const helpersWithUrls = await Promise.all(
+      helpers.map(async (helper) => {
+        const helperObj = helper.toObject();
+        return {
+          ...helperObj,
+          image: await getS3SignedUrl(helper.image),
+          pdf: getFileUrl(helper.pdf),
+          additionalDocument: getFileUrl(helper.additionalDocument),
+        };
+      })
+    );
     res.status(200).json(helpersWithUrls);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -218,7 +324,7 @@ app.put('/api/helpers/:id', cpUpload, async (req: Request, res: Response) => {
 
     const helperWithUrls = {
       ...helper.toObject(),
-      image: getFileUrl(helper.image),
+      image: await getS3SignedUrl(helper.image),
       pdf: getFileUrl(helper.pdf),
       additionalDocument: getFileUrl(helper.additionalDocument)
     };
@@ -233,61 +339,31 @@ app.put('/api/helpers/:id', cpUpload, async (req: Request, res: Response) => {
 
 app.post(
   '/api/helpers',
-  cpUpload,
   async (req: Request, res: Response) => {
     try {
-      console.log('=== POST /api/helpers called ===');
-      console.log('Received helper data:', req.body);
-      console.log('Received files:', req.files);
+      console.log('Received request to add new helper:', req.body);
+      let helperData = req.body;
 
-      let helperData: Record<string, any> = { ...req.body };
-      delete helperData._id;
-
-      if (req.files) {
-        console.log('Processing file uploads...');
-        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-        if (files.image && files.image[0]) {
-          helperData.image = path.join(process.cwd(), 'uploads', files.image[0].filename);
-          console.log('Image file processed:', helperData.image);
-        }
-        if (files.pdf && files.pdf[0]) {
-          helperData.pdf = path.join(process.cwd(), 'uploads', files.pdf[0].filename);
-          console.log('PDF file processed:', helperData.pdf);
-        }
-        if (files.additionalDocument && files.additionalDocument[0]) {
-          helperData.additionalDocument = path.join(process.cwd(), 'uploads', files.additionalDocument[0].filename);
-          console.log('Additional document processed:', helperData.additionalDocument);
+      // If data is nested under a 'data' property, extract it
+      if (helperData.data) {
+        if (typeof helperData.data === 'string') {
+          helperData = JSON.parse(helperData.data);
+        } else {
+          helperData = helperData.data;
         }
       }
 
-      if (helperData.TypeOfService || helperData.Orgaization || helperData.Name) {
-        console.log('Data needs mapping - using mapData function');
-        helperData = mapData(helperData);
-      } else {
-        console.log('Data is already in database format');
-      }
+      const mappedData = mapData(helperData);
 
-      console.log('Final helper data before saving:', helperData);
+      console.log('Mapped data for new helper:', mappedData);
 
-      const incomingId = parseInt(helperData.id, 10);
-      helperData.id = incomingId || (await generateUniqueId());
+      const uniqueId = await generateUniqueId();
+      mappedData.id = uniqueId;
 
-      console.log('Creating Helper with data:', helperData);
-      const helper = new Helper(helperData);
-      const savedHelper = await helper.save();
+      const newHelper = new Helper(mappedData);
+      await newHelper.save();
 
-      const helperWithUrls = {
-        ...savedHelper.toObject(),
-        image: getFileUrl(savedHelper.image),
-        pdf: getFileUrl(savedHelper.pdf),
-        additionalDocument: getFileUrl(savedHelper.additionalDocument)
-      };
-
-      console.log('Helper saved successfully:', savedHelper);
-      res.status(201).json({
-        message: 'Helper added successfully',
-        helper: helperWithUrls
-      });
+      res.status(201).json({ message: 'Helper added successfully', helper: newHelper });
     } catch (error: any) {
       console.error('=== ERROR in POST /api/helpers ===');
       console.error('Error saving helper:', error);

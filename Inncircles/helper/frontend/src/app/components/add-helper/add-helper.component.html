@@ -4,17 +4,20 @@
 </header>
 <main class="main">
     <div class="left">
-      <mat-vertical-stepper [selectedIndex]="stepIndex" linear>
-        <mat-step label="Helper Details">
-          <p>Enter the details of the helper here...</p>
+      <mat-vertical-stepper [selectedIndex]="stepIndex" [linear]="true">
+        <mat-step label="Helper Details" [editable]="false">
+          <!-- <p>Enter the details of the helper here...</p> -->
+           <p></p>
         </mat-step>
 
-        <mat-step label="Documents">
-          <p>Upload related documents here...</p>
+        <mat-step label="Documents" (click)=" showDocument = true; showForm = false; showReview = false;">
+          <!-- <p>Upload related documents here...</p> -->
+           <p></p>
         </mat-step>
 
-        <mat-step label="Review">
-          <p>Review and confirm your details here...</p>
+        <mat-step label="Review" (click)=" showReview = true; showForm = false; showDocument = false;">
+          <!-- <p>Review and confirm your details here...</p> -->
+           <p></p>
         </mat-step>
       </mat-vertical-stepper>
     </div>

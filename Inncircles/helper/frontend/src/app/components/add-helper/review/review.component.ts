@@ -68,13 +68,7 @@ export class ReviewComponent implements OnInit {
       };
 
       // Generate QR code value with helper information
-      this.qrString = JSON.stringify({
-        name: this.helper.fullname,
-        phone: this.helper.phone,
-        email: this.helper.email,
-        occupation: this.helper.occupation,
-        organization: this.helper.organisationName
-      });
+      
     }
 
    addHelper(){
@@ -82,7 +76,15 @@ export class ReviewComponent implements OnInit {
       // console.log('Submitting helper data:', this.helper);
       this.addHelperService.addHelper(this.helper).subscribe({
         next: (response: any) => {
-          // console.log('Helper added successfully:', response);
+          console.log('Helper added successfully in add helper:', response);
+          this.qrString = JSON.stringify({
+            image: response.helper.image,
+            fullname: this.helper.fullname,
+            phone: this.helper.phone,
+            email: this.helper.email,
+            occupation: this.helper.occupation,
+            organizationName: this.helper.organisationName
+          });
           this.isLoading = false;
           this.openSuccessDialog();
         },
