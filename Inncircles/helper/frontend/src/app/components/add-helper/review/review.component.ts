@@ -73,8 +73,16 @@ export class ReviewComponent implements OnInit {
 
    addHelper(){
       this.isLoading = true;
+      
+      // Get files from form data
+      const imageFile = this.formData.get('image')?.value instanceof File ? this.formData.get('image')?.value : undefined;
+      const pdfFile = this.formData.get('pdf')?.value instanceof File ? this.formData.get('pdf')?.value : undefined;
+      const additionalDocFile = this.formData.get('additionalDocument')?.value instanceof File ? this.formData.get('additionalDocument')?.value : undefined;
+      
       // console.log('Submitting helper data:', this.helper);
-      this.addHelperService.addHelper(this.helper).subscribe({
+      // console.log('Files:', { imageFile, pdfFile, additionalDocFile });
+      
+      this.addHelperService.addHelper(this.helper, imageFile, pdfFile, additionalDocFile).subscribe({
         next: (response: any) => {
           console.log('Helper added successfully in add helper:', response);
           this.qrString = JSON.stringify({

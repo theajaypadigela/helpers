@@ -1,23 +1,113 @@
-  .next-button {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 6px 12px;
-            font-size: 14px;
-            background-color: #000;
-            color: #fff;
-            border-radius: 4px;
-            cursor: pointer;
-            width: auto;
-            flex-shrink: 0;
+form {
+    padding-bottom: 30px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 
-            img {
-                width: 10px;
-                height: 10px;
-                display: block;
-            }
+    div {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        align-items: center;
+    }
 
-            &:hover {
-                background-color: #333;
-            }
+    p {
+        font-weight: 500;
+        margin: 10px auto;
+        text-align: center;
+    }
+
+    label {
+        cursor: pointer;
+    }
+}
+
+.imageUpload {
+    display: flex;
+    height: 100px;
+    width: 100px;
+    margin: auto;
+    border-radius: 50%;
+    border: 2px dashed black;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+    
+    svg {
+        height: 40px;
+        width: 40px;
+    }
+    
+    &:hover {
+        border-color: #007bff;
+        
+        svg {
+            color: #007bff;
         }
+    }
+}
+
+.kyc-description-icon {
+    color: #1976d2;
+    font-size: 44px;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 3px dotted #1976d2;
+    padding: 12px 28px;
+    border-radius: 10px;
+    background: #f5faff;
+    transition: box-shadow 0.2s, background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    
+    &:hover {
+        box-shadow: 0 4px 16px rgba(25, 118, 210, 0.18);
+        background: #e3f2fd;
+    }
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 4px;
+    text-align: center;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.next-button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    font-size: 14px;
+    background-color: #000;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    width: auto;
+    flex-shrink: 0;
+    border: none;
+
+    img {
+        width: 10px;
+        height: 10px;
+        display: block;
+    }
+
+    &:hover {
+        background-color: #333;
+    }
+
+    &:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+}

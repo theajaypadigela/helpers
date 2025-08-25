@@ -14,7 +14,7 @@ const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+// app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 mongoose.connect('mongodb://localhost:27017/helpersdb', {
   useNewUrlParser: true,
@@ -22,15 +22,7 @@ mongoose.connect('mongodb://localhost:27017/helpersdb', {
 } as any);
 
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './uploads/');
-  },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
-    cb(null, Date.now() + '-' + file.originalname);
-  }
-});
+const storage = multer.memoryStorage();
 
 interface IHelper {
   id: number;
@@ -113,21 +105,6 @@ const userSchema = new Schema<IHelper>({
 
 const Helper: Model<IHelper> = mongoose.model<IHelper>('Helper', userSchema, 'helpers');
 
-async function getS3SignedUrl(key: string | null | undefined): Promise<string | null> {
-  if (!key) return null;
-  if (key.startsWith('http')) return key;
-  try {
-    const command = new GetObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME!,
-      Key: key,
-    });
-    const signedUrl = await getSignedUrl(s3Client, command);
-    return signedUrl;
-  } catch (error) {
-    console.error(`Error generating signed URL for key ${key}:`, error);
-    return null;
-  }
-}
 
 async function generateUniqueId(): Promise<number> {
   const lastHelper = await Helper.findOne().sort({ id: -1 });
@@ -140,7 +117,6 @@ function mapData(updatedData: Record<string, any>): Partial<IHelper> {
   mappedData.organisationName = updatedData.organisationName;
   mappedData.fullname = updatedData.fullname;
   if (Array.isArray(updatedData.languages)) {
-    // Handle nested arrays like [['telugu', 'english']]
     if (updatedData.languages.length > 0 && Array.isArray(updatedData.languages[0])) {
       mappedData.languages = updatedData.languages[0];
     } else {
@@ -156,21 +132,18 @@ function mapData(updatedData: Record<string, any>): Partial<IHelper> {
   mappedData.email = updatedData.email;
   mappedData.vehicleType = updatedData.vehicleType;
   
-  // Handle image field - ensure it's a string or null, not an object
   if (updatedData.image && typeof updatedData.image === 'string') {
     mappedData.image = updatedData.image;
   } else {
     mappedData.image = null;
   }
   
-  // Handle pdf field - ensure it's a string or null
   if (updatedData.pdf && typeof updatedData.pdf === 'string') {
     mappedData.pdf = updatedData.pdf;
   } else {
     mappedData.pdf = null;
   }
   
-  // Handle additionalDocument field - ensure it's a string or null
   if (updatedData.additionalDocument && typeof updatedData.additionalDocument === 'string') {
     mappedData.additionalDocument = updatedData.additionalDocument;
   } else {
@@ -180,12 +153,6 @@ function mapData(updatedData: Record<string, any>): Partial<IHelper> {
   mappedData.JoinedOn = updatedData.JoinedOn || new Date();
 
   return mappedData;
-}
-
-function getFileUrl(filePath: string | null | undefined): string | null {
-  if (!filePath) return null;
-  const filename = path.basename(filePath);
-  return `/uploads/${filename}`;
 }
 
 const upload = multer({
@@ -221,68 +188,101 @@ const s3Client = new S3Client({
   }
 });
 
-async function addImage(image: string): Promise<any> {
+async function addImageToS3(file: Express.Multer.File): Promise<string> {
+  const ext = path.extname(file.originalname);
+  const key = `helpers/${Date.now()}${ext}`;
   const command = new PutObjectCommand({
     Bucket: process.env.AWS_BUCKET_NAME!,
-    Key: `helpers/${Date.now()}.jpg`,
-    Body: image
+    Key: key,
+    Body: file.buffer,
+    ContentType: file.mimetype,
   });
-  const signedUrl = await getSignedUrl(s3Client, command);
-  return signedUrl;
+  await s3Client.send(command);
+  console.log('Image uploaded to S3 with key:', key);
+  return key;
 }
 
-app.get('/api/helpers/getUrl', async (req: Request, res: Response) => {
-  try {
-    const key = `helpers/${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+async function addPdfToS3(file: Express.Multer.File): Promise<string> {
+  const key = `helpers/${Date.now()}.pdf`;
+  const command = new PutObjectCommand({
+    Bucket: process.env.AWS_BUCKET_NAME!,
+    Key: key,
+    Body: file.buffer,
+    ContentType: 'application/pdf',
+  });
+  await s3Client.send(command);
+  return key;
+}
 
-    const command = new PutObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: key,
-      ContentType: 'image/jpeg',
-    });
+async function addDocumentToS3(file: Express.Multer.File): Promise<string> {
+  const ext = path.extname(file.originalname);
+  const key = `helpers/${Date.now()}${ext}`;
+  const command = new PutObjectCommand({
+    Bucket: process.env.AWS_BUCKET_NAME!,
+    Key: key,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+  });
+  await s3Client.send(command);
+  return key;
+}
 
-    const signedUrl = await getSignedUrl(s3Client, command); 
+// async function getS3SignedUrl(key?: string | null): Promise<string | null> {
+//   if (!key) return null;
+//   const command = new GetObjectCommand({
+//     Bucket: process.env.AWS_BUCKET_NAME!,
+//     Key: key,
+//   });
+//   return await getSignedUrl(s3Client, command);
+// }
 
-    res.status(200).json({ url: signedUrl, key });
-  } catch (error: any) {
-    console.error('Error generating signed URL:', error);
-    res.status(500).json({ message: 'Failed to generate signed URL', error: error.message });
-  }
-});
+// app.get('/api/helpers/getUrl', async (req: Request, res: Response) => {
+//   try {
+//     const key = `helpers/${Date.now()}`;
 
-app.get('/api/helpers/getImageUrl', async (req: Request, res: Response) => {
-  const { key } = req.query;
-  if (!key || typeof key !== 'string') {
-    return res.status(400).json({ message: 'Invalid key parameter' });
-  }
+//     const command = new PutObjectCommand({
+//       Bucket: process.env.AWS_BUCKET_NAME,
+//       Key: key,
+//       ContentType: 'image/jpeg',
+//     });
 
-  try {
-    const signedUrl = await getS3SignedUrl(key);
-    if (!signedUrl) {
-      return res.status(404).json({ message: 'Image not found' });
-    }
-    res.status(200).json({ imageUrl: signedUrl });
-  } catch (error: any) {
-    console.error('Error getting image URL:', error);
-    res.status(500).json({ message: 'Failed to get image URL', error: error.message });
-  }
-});
+//     // const signedUrl = await getSignedUrl(s3Client, command); 
+
+//     res.status(200).json({ url: signedUrl, key });
+//   } catch (error: any) {
+//     console.error('Error generating signed URL:', error);
+//     res.status(500).json({ message: 'Failed to generate signed URL', error: error.message });
+//   }
+// });
+
+// app.get('/api/helpers/getImageUrl', async (req: Request, res: Response) => {
+//   const { key } = req.query;
+//   if (!key || typeof key !== 'string') {
+//     return res.status(400).json({ message: 'Invalid key parameter' });
+//   }
+
+//   try {
+//     const signedUrl = await getS3SignedUrl(key);
+//     if (!signedUrl) {
+//       return res.status(404).json({ message: 'Image not found' });
+//     }
+//     res.status(200).json({ imageUrl: signedUrl });
+//   } catch (error: any) {
+//     console.error('Error getting image URL:', error);
+//     res.status(500).json({ message: 'Failed to get image URL', error: error.message });
+//   }
+// });
 
 app.get('/api/helpers', async (req: Request, res: Response) => {
   try {
     const helpers = await Helper.find();
-    const helpersWithUrls = await Promise.all(
+    const Helpers = await Promise.all(
       helpers.map(async (helper) => {
         const helperObj = helper.toObject();
-        return {
-          ...helperObj,
-          image: await getS3SignedUrl(helper.image),
-          pdf: getFileUrl(helper.pdf),
-          additionalDocument: getFileUrl(helper.additionalDocument),
-        };
+        return helperObj;
       })
     );
-    res.status(200).json(helpersWithUrls);
+    res.status(200).json(Helpers);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -302,13 +302,16 @@ app.put('/api/helpers/:id', cpUpload, async (req: Request, res: Response) => {
     if (req.files) {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       if (files.image && files.image[0]) {
-        updatedData.image = path.join(process.cwd(), 'uploads', files.image[0].filename);
+        const imageKey = await addImageToS3(files.image[0]);
+        updatedData.image = imageKey;
       }
       if (files.pdf && files.pdf[0]) {
-        updatedData.pdf = path.join(process.cwd(), 'uploads', files.pdf[0].filename);
+        const pdfKey = await addPdfToS3(files.pdf[0]);
+        updatedData.pdf = pdfKey;
       }
       if (files.additionalDocument && files.additionalDocument[0]) {
-        updatedData.additionalDocument = path.join(process.cwd(), 'uploads', files.additionalDocument[0].filename);
+        const docKey = await addDocumentToS3(files.additionalDocument[0]);
+        updatedData.additionalDocument = docKey;
       }
     }
 
@@ -322,14 +325,7 @@ app.put('/api/helpers/:id', cpUpload, async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Helper not found' });
     }
 
-    const helperWithUrls = {
-      ...helper.toObject(),
-      image: await getS3SignedUrl(helper.image),
-      pdf: getFileUrl(helper.pdf),
-      additionalDocument: getFileUrl(helper.additionalDocument)
-    };
-
-    res.status(200).json({ message: 'Helper updated successfully', helper: helperWithUrls });
+    res.status(200).json({ message: 'Helper updated successfully', helper: helper });
   } catch (error: any) {
     console.error('Error updating helper:', error);
     console.error('Error details:', error.message);
@@ -339,12 +335,13 @@ app.put('/api/helpers/:id', cpUpload, async (req: Request, res: Response) => {
 
 app.post(
   '/api/helpers',
+  cpUpload,
+  cpUpload,
   async (req: Request, res: Response) => {
     try {
-      console.log('Received request to add new helper:', req.body);
+      // console.log('Received request to add new helper:', req.body);
       let helperData = req.body;
 
-      // If data is nested under a 'data' property, extract it
       if (helperData.data) {
         if (typeof helperData.data === 'string') {
           helperData = JSON.parse(helperData.data);
@@ -354,8 +351,28 @@ app.post(
       }
 
       const mappedData = mapData(helperData);
+      
+      // Handle file uploads from multer
+      if (req.files) {
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+        
+        if (files.image && files.image[0]) {
+          const imageKey = await addImageToS3(files.image[0]);
+          mappedData.image = imageKey;
+        }
+        
+        if (files.pdf && files.pdf[0]) {
+          const pdfKey = await addPdfToS3(files.pdf[0]);
+          mappedData.pdf = pdfKey;
+        }
+        
+        if (files.additionalDocument && files.additionalDocument[0]) {
+          const docKey = await addDocumentToS3(files.additionalDocument[0]);
+          mappedData.additionalDocument = docKey;
+        }
+      }
 
-      console.log('Mapped data for new helper:', mappedData);
+      // console.log('Mapped data for new helper:', mappedData);
 
       const uniqueId = await generateUniqueId();
       mappedData.id = uniqueId;

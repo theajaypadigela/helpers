@@ -16,23 +16,26 @@ export class AvatarService {
     return `https://ui-avatars.com/api/?name=${formatted}&background=random&color=fff&rounded=true&length=2`;
   }
 
-  getAvatarImagePath(Key: string): string {
-    return this.generateAvatarUrl(Key);
-    // this.getImageURL(Key).subscribe(imageUrl => {
-    //   this.imgUrl = imageUrl;
-    // });
-    // return this.imgUrl || '';
+getAvatarImagePath(Key: string): string {
+
+  if (!Key) {
+    const avatar = this.generateAvatarUrl('User');
+    this.imgUrl = avatar;
+    return avatar;
   }
 
-  getImageURL(key: string): Observable<string> {
-    return this.http.get<{ imageUrl: string }>(`http://localhost:3000/api/helpers/getImageUrl?key=${key}`)
-      .pipe(
-        map(response => response.imageUrl)
-      );
-    return this.http.get<{ imageUrl: string }>(`http://localhost:3000/api/helpers/getImageUrl?key=${key}`)
-      .pipe(
-        map(response => response.imageUrl)
-      );
+const bucket = 'inncircles.helpersdb';
+const region = 'ap-south-1';
+
+const url = `https://s3.${region}.amazonaws.com/${bucket}/${Key}`;
+
+  this.imgUrl = url;
+  return url;
+}
+
+
+  getImageURL(Key: string) {
+    return this.getAvatarImagePath(Key);
   }
 
 }

@@ -23,10 +23,6 @@ export class RightCardComponent {
     }
     
     let fileName = pdf;
-    if (typeof pdf === 'string') {
-      const parts = pdf.split(/[/\\]/);
-      fileName = parts[parts.length - 1];
-    } 
     return this.avatarService.getAvatarImagePath(fileName as string);
   }
 
