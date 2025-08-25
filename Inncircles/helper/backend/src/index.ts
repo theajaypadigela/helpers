@@ -156,21 +156,19 @@ function mapData(updatedData: Record<string, any>): Partial<IHelper> {
   mappedData.email = updatedData.email;
   mappedData.vehicleType = updatedData.vehicleType;
   
-  // Handle image field - ensure it's a string or null, not an object
+  
   if (updatedData.image && typeof updatedData.image === 'string') {
     mappedData.image = updatedData.image;
   } else {
     mappedData.image = null;
   }
   
-  // Handle pdf field - ensure it's a string or null
   if (updatedData.pdf && typeof updatedData.pdf === 'string') {
     mappedData.pdf = updatedData.pdf;
   } else {
     mappedData.pdf = null;
   }
   
-  // Handle additionalDocument field - ensure it's a string or null
   if (updatedData.additionalDocument && typeof updatedData.additionalDocument === 'string') {
     mappedData.additionalDocument = updatedData.additionalDocument;
   } else {
@@ -343,8 +341,6 @@ app.post(
     try {
       console.log('Received request to add new helper:', req.body);
       let helperData = req.body;
-
-      // If data is nested under a 'data' property, extract it
       if (helperData.data) {
         if (typeof helperData.data === 'string') {
           helperData = JSON.parse(helperData.data);
